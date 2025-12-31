@@ -3,8 +3,8 @@
 <package format="3">
   <name>radio_transceiver</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="root@todo.todo">root</maintainer>
+  <description>Handle communication with ground software over LoRa</description>
+  <maintainer email="amc9897@rit.edu">Aaron Chan</maintainer>
   <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
