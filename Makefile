@@ -15,3 +15,10 @@ logs:
 build:
 	docker compose build
 
+local_perms:
+	sudo chown -R $(id -u):$(id -g) .
+
+# Must be ran in container
+compile_commands:
+	colcon build --symlink-install --event-handlers console_direct+ --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
