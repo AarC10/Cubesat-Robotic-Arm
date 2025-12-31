@@ -20,8 +20,7 @@ local_perms:
 
 # Must be ran in container / Pi
 compile_commands:
-	colcon build --symlink-install --event-handlers console_direct+ --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-	python3 utils/compile_commands_compiler.py
+	colcon build --symlink-install --event-handlers console_direct+ --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -G Ninja
 
 colcon:
 	colcon build --symlink-install
