@@ -13,6 +13,16 @@ find_package(sensor_msgs REQUIRED)
 find_package(trajectory_msgs REQUIRED)
 find_package(builtin_interfaces REQUIRED)
 
+add_executable(arm_commander_node src/main.cpp)
+
+ament_target_dependencies(arm_commander_node
+  rclcpp
+  std_msgs
+  builtin_interfaces
+  sensor_msgs
+)
+
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
