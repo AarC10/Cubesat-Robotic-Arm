@@ -5,7 +5,7 @@
 
 class ArmCommanderNode : public rclcpp::Node {
 public:
-    ArmCommanderNode(const int16_t angleIncrement = 5, const int timeoutIntervalMs = 100);
+    ArmCommanderNode(const std::string receiveTopic = "/arm_target", const std::string publishTopic = "/arm_command", const int16_t angleIncrement = 5, const int timeoutIntervalMs = 100);
 
     ~ArmCommanderNode() override;
 
@@ -35,6 +35,9 @@ private:
     // Timer callback
     rclcpp::TimerBase::SharedPtr timer;
 
+    // Topics
+    rclcpp::Subscription<arm_msgs::msg::ArmCommand>::SharedPtr targetSubscription;
+    rclcpp::Publisher<arm_msgs::msg::ArmCommand>::SharedPtr commandPublisher;
 
     void timeoutCallback();
 
