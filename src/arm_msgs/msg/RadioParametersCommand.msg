@@ -1,0 +1,9 @@
+int shoulder_yaw
+int shoulder_pitch
+int elbow_angle
+int wrist_angle
+uint8 spreading_factor
+uint32 bandwidth
+uint32 coding_rate
+uint8 rx_test_packets_expected
+uint8 tx_test_packets_expected
