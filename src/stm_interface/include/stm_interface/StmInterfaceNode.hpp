@@ -5,6 +5,7 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include "arm_msgs/msg/arm_command.hpp"
+#include "arm_msgs/msg/arm_status.hpp"
 
 class StmInterfaceNode : public rclcpp::Node {
 public:
@@ -45,8 +46,12 @@ private:
   uint8_t bitsPerWord;
   uint32_t speed;
 
+  rclcpp::Publisher<arm_msgs::msg::ArmStatus>::SharedPtr armStatusPublisher;
+
   static constexpr size_t BUFFER_SIZE = 256;
 
   void performSpiTransfer(const uint8_t *txData, uint8_t *rxData,
                           size_t length);
+
+  void reportArmStatus(const SpiStatusPacket &status);  
 };

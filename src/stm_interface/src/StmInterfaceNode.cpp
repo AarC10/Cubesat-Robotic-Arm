@@ -6,8 +6,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "arm_msgs/msg/arm_status.hpp"
-
 StmInterfaceNode::StmInterfaceNode(const char *spiDevice, uint8_t mode,
                                    uint8_t bitsPerWord, uint32_t speed)
     : Node("stm_interface"), mode(mode), bitsPerWord(bitsPerWord),
@@ -18,6 +16,8 @@ StmInterfaceNode::StmInterfaceNode(const char *spiDevice, uint8_t mode,
                  spiDevice);
     throw std::runtime_error("Failed to open SPI device");
   }
+
+  armStatusPublisher = this->create_publisher<arm_msgs::msg::ArmStatus>("arm_status", 10);
 
   ioctl(spiDevFd, SPI_IOC_WR_MODE, &mode);
   ioctl(spiDevFd, SPI_IOC_WR_BITS_PER_WORD, &bitsPerWord);
@@ -39,6 +39,7 @@ void StmInterfaceNode::receiveArmCommand(
   RCLCPP_INFO(this->get_logger(), "Received Arm Command: %d",
               msg->command_number);
 
+  // Prep the packet and perform SPI transfer
   SpiArmCommandPacket packet;
   packet.command_number = msg->command_number;
   packet.shoulder_yaw = msg->shoulder_yaw;
@@ -53,20 +54,10 @@ void StmInterfaceNode::receiveArmCommand(
   memcpy(txBuffer, &packet, sizeof(SpiArmCommandPacket));
   performSpiTransfer(txBuffer, rxBuffer, sizeof(SpiArmCommandPacket));
 
+  // Parse and report status to topic
   SpiStatusPacket status;
   memcpy(&status, rxBuffer, sizeof(SpiStatusPacket));
-  arm_msgs::msg::ArmStatus statusMsg;
-  statusMsg.fault_status = status.fault_status;
-  statusMsg.m1_commanded_speed = status.m1_commanded_speed;
-  statusMsg.m2_commanded_speed = status.m2_commanded_speed;
-  statusMsg.m3_commanded_speed = status.m3_commanded_speed;
-  statusMsg.servo_commanded_angle = status.servo_commanded_angle;
-  statusMsg.shoulder_yaw = status.shoulder_yaw;
-  statusMsg.shoulder_pitch = status.shoulder_pitch;
-  statusMsg.elbow_angle = status.elbow_angle;
-  statusMsg.shoulder_yaw_limit_switch = status.shoulder_yaw_limit_switch;
-  statusMsg.temp1 = status.temp1;
-  statusMsg.temp2 = status.temp2;
+  reportArmStatus(status);
 }
 
 void StmInterfaceNode::performSpiTransfer(const uint8_t *txData,
@@ -86,4 +77,30 @@ void StmInterfaceNode::performSpiTransfer(const uint8_t *txData,
   if (ret < 1) {
     RCLCPP_ERROR(this->get_logger(), "Failed to perform SPI transfer.");
   }
+}
+
+void StmInterfaceNode::reportArmStatus(const SpiStatusPacket &status) {
+  RCLCPP_INFO(
+      this->get_logger(),
+      "Arm Status - Fault: %d, M1 Speed: %.2f, M2 Speed: %.2f, M3 Speed: "
+      "%.2f, Servo Angle: %.2f, Shoulder Yaw: %.2f, Shoulder Pitch: %.2f, "
+      "Elbow Angle: %.2f, Yaw Limit Switch: %.2f, Temp1: %.2f, Temp2: %.2f",
+      status.fault_status, status.m1_commanded_speed, status.m2_commanded_speed,
+      status.m3_commanded_speed, status.servo_commanded_angle,
+      status.shoulder_yaw, status.shoulder_pitch, status.elbow_angle,
+      status.shoulder_yaw_limit_switch, status.temp1, status.temp2);
+
+  arm_msgs::msg::ArmStatus statusMsg;
+  statusMsg.fault_status = status.fault_status;
+  statusMsg.m1_commanded_speed = status.m1_commanded_speed;
+  statusMsg.m2_commanded_speed = status.m2_commanded_speed;
+  statusMsg.m3_commanded_speed = status.m3_commanded_speed;
+  statusMsg.servo_commanded_angle = status.servo_commanded_angle;
+  statusMsg.shoulder_yaw = status.shoulder_yaw;
+  statusMsg.shoulder_pitch = status.shoulder_pitch;
+  statusMsg.elbow_angle = status.elbow_angle;
+  statusMsg.shoulder_yaw_limit_switch = status.shoulder_yaw_limit_switch;
+  statusMsg.temp1 = status.temp1;
+  statusMsg.temp2 = status.temp2;
+  armStatusPublisher->publish(statusMsg);
 }
