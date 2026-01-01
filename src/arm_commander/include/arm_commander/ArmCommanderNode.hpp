@@ -28,9 +28,13 @@ private:
     int16_t commandWristAngle = 0;
     bool commandTakePicture = false;
 
-
     // Tunables
     const int16_t angleIncrement = 5; // degrees
+    const int timeoutIntervalMs = 100; // milliseconds
+
+    // Timer callback
+    rclcpp::TimerBase::SharedPtr timer;
+    
 
     void timeoutCallback();
 

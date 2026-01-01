@@ -1,6 +1,11 @@
 #include "arm_commander/ArmCommanderNode.hpp"
 
 ArmCommanderNode::ArmCommanderNode() : Node("arm_commander") {
+    timer = this->create_wall_timer(
+        std::chrono::milliseconds(timeoutIntervalMs),
+        std::bind(&ArmCommanderNode::timeoutCallback, this)
+    );
+
     RCLCPP_INFO(this->get_logger(), "ArmCommanderNode has been started.");
 }
 
