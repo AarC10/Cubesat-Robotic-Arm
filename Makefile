@@ -1,10 +1,14 @@
 .PHONY: up down exec logs build
 
 all:
-	docker compose run --rm ros bash -lc \
+	if [ -f "/.dockerenv" ]; then \
+	  colcon build --symlink-install; \
+	else \
+	  docker compose run --rm ros bash -lc \
   		"cd /workspace && \
    		source /opt/ros/humble/setup.bash && \
-   		colcon build --symlink-install"
+   		colcon build --symlink-install"; \
+	fi
 
 up:
 	LOCAL_UID=$$(id -u) LOCAL_GID=$$(id -g) docker compose up --build -d

@@ -12,13 +12,31 @@ find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(builtin_interfaces REQUIRED)
 
-add_executable(stm_interface_node src/main.cpp)
+add_executable(stm_interface_node 
+  src/main.cpp
+  src/StmInterfaceNode.cpp
+)
+
 ament_target_dependencies(stm_interface_node
   rclcpp
   std_msgs
   builtin_interfaces
   sensor_msgs
 )
+
+target_include_directories(stm_interface_node PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
+
+install(TARGETS stm_interface_node
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(DIRECTORY include/
+  DESTINATION include/
+)
+
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
