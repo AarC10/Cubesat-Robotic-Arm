@@ -19,12 +19,14 @@ private:
     int16_t targetShoulderPitch = 0;
     int16_t targetElbowAngle = 0;
     int16_t targetWristAngle = 0;
+    bool targetTakePicture = false;
 
     // Current Command
     int16_t commandShoulderYaw = 0;
     int16_t commandShoulderPitch = 0;
     int16_t commandElbowAngle = 0;
     int16_t commandWristAngle = 0;
+    bool commandTakePicture = false;
 
 
     // Tunables
@@ -33,4 +35,6 @@ private:
     void timeoutCallback();
 
     void incrementToTarget(int16_t &current, int16_t target);
+
+    bool atTarget() const;
 };

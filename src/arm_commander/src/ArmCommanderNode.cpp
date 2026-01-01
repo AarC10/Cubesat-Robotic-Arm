@@ -23,6 +23,14 @@ void ArmCommanderNode::timeoutCallback() {
     incrementToTarget(commandElbowAngle, targetElbowAngle);
     incrementToTarget(commandWristAngle, targetWristAngle);
 
+    if (atTarget() && targetTakePicture) {
+        RCLCPP_INFO(this->get_logger(), "At target positions. Taking picture.");
+        targetTakePicture = false; // Reset flag
+        commandTakePicture = true; // Set command
+    } else {
+        commandTakePicture = false;
+    }
+
     RCLCPP_INFO(this->get_logger(),
                 "Current Commands - Shoulder Yaw: %d, Shoulder Pitch: %d, Elbow Angle: %d, Wrist Angle: %d",
                 commandShoulderYaw, commandShoulderPitch, commandElbowAngle, commandWristAngle);
@@ -40,4 +48,11 @@ void ArmCommanderNode::incrementToTarget(int16_t &current, int16_t target) {
             current = target;
         }
     }
+}
+
+bool ArmCommanderNode::atTarget() const {
+    return (commandShoulderYaw == targetShoulderYaw) &&
+           (commandShoulderPitch == targetShoulderPitch) &&
+           (commandElbowAngle == targetElbowAngle) &&
+           (commandWristAngle == targetWristAngle);
 }
