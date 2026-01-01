@@ -29,4 +29,8 @@ private:
 
     // Tunables
     const int16_t angleIncrement = 5; // degrees
+
+    void timeoutCallback();
+
+    void incrementToTarget(int16_t &current, int16_t target);
 };
