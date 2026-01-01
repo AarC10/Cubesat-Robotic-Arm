@@ -39,7 +39,7 @@ void StmInterfaceNode::receiveArmCommand(
   RCLCPP_INFO(this->get_logger(), "Received Arm Command: %d",
               msg->command_number);
 
-  // Prep the packet and perform SPI transfer
+  // Prep the packet
   SpiArmCommandPacket packet;
   packet.command_number = msg->command_number;
   packet.shoulder_yaw = msg->shoulder_yaw;
@@ -51,6 +51,7 @@ void StmInterfaceNode::receiveArmCommand(
   uint8_t txBuffer[sizeof(SpiArmCommandPacket)];
   uint8_t rxBuffer[sizeof(SpiArmCommandPacket)] = {0};
 
+  // SPI Transfer
   memcpy(txBuffer, &packet, sizeof(SpiArmCommandPacket));
   performSpiTransfer(txBuffer, rxBuffer, sizeof(SpiArmCommandPacket));
 
@@ -72,6 +73,9 @@ void StmInterfaceNode::performSpiTransfer(const uint8_t *txData,
   tr.rx_buf = reinterpret_cast<unsigned long>(rxData);
   tr.len = static_cast<uint32_t>(length);
   tr.speed_hz = speed;
+
+  // spidev is not thread-safe so use a mutex
+  std::lock_guard<std::mutex> lock(busMutex);
 
   int ret = ioctl(spiDevFd, SPI_IOC_MESSAGE(1), &tr);
   if (ret < 1) {

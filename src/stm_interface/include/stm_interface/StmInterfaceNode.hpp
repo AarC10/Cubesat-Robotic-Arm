@@ -45,6 +45,7 @@ private:
   uint8_t mode;
   uint8_t bitsPerWord;
   uint32_t speed;
+  std::mutex busMutex;
 
   rclcpp::Publisher<arm_msgs::msg::ArmStatus>::SharedPtr armStatusPublisher;
 
