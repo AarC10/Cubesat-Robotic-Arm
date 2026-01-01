@@ -1,6 +1,6 @@
 #include "arm_commander/ArmCommanderNode.hpp"
 
-ArmCommanderNode::ArmCommanderNode() : Node("arm_commander") {
+ArmCommanderNode::ArmCommanderNode(const int16_t angleIncrement, const int timeoutIntervalMs) : Node("arm_commander"), angleIncrement(angleIncrement), timeoutIntervalMs(timeoutIntervalMs) {
     timer = this->create_wall_timer(
         std::chrono::milliseconds(timeoutIntervalMs),
         std::bind(&ArmCommanderNode::timeoutCallback, this)

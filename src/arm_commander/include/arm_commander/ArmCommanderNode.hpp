@@ -5,7 +5,7 @@
 
 class ArmCommanderNode : public rclcpp::Node {
 public:
-    ArmCommanderNode();
+    ArmCommanderNode(const int16_t angleIncrement = 5, const int timeoutIntervalMs = 100);
 
     ~ArmCommanderNode() override;
 
@@ -29,12 +29,12 @@ private:
     bool commandTakePicture = false;
 
     // Tunables
-    const int16_t angleIncrement = 5; // degrees
-    const int timeoutIntervalMs = 100; // milliseconds
+    const int16_t angleIncrement; // degrees
+    const int timeoutIntervalMs; // milliseconds
 
     // Timer callback
     rclcpp::TimerBase::SharedPtr timer;
-    
+
 
     void timeoutCallback();
 
