@@ -13,7 +13,10 @@ find_package(sensor_msgs REQUIRED)
 find_package(trajectory_msgs REQUIRED)
 find_package(builtin_interfaces REQUIRED)
 
-add_executable(arm_commander_node src/main.cpp)
+add_executable(arm_commander_node 
+  src/main.cpp 
+  src/ArmCommanderNode.cpp
+)
 
 ament_target_dependencies(arm_commander_node
   rclcpp
@@ -22,6 +25,18 @@ ament_target_dependencies(arm_commander_node
   sensor_msgs
 )
 
+target_include_directories(arm_commander_node PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
+
+install(TARGETS arm_commander_node
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(DIRECTORY include/
+  DESTINATION include/
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

@@ -1,3 +1,5 @@
+#include "arm_commander/ArmCommanderNode.hpp"
+
 #include <rclcpp/rclcpp.hpp>
 
 int main(int argc, char **argv) {
