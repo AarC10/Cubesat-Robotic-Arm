@@ -9,7 +9,7 @@ public:
 
     ~ArmCommanderNode() override;
 
-    void handleArmCommand(const arm_msgs::msg::ArmCommand::SharedPtr msg);
+    void receiveArmTarget(const arm_msgs::msg::ArmCommand::SharedPtr msg);
     
 private:
     uint16_t currentCommandNumber = 0;

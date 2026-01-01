@@ -35,6 +35,25 @@ StmInterfaceNode::~StmInterfaceNode() {
     RCLCPP_INFO(this->get_logger(), "STM Interface Node shutting down.");
 }
 
+void StmInterfaceNode::receiveArmCommand(const arm_msgs::msg::ArmCommand::SharedPtr msg) {
+  RCLCPP_INFO(this->get_logger(), "Received Arm Command: %d",
+              msg->command_number);
+
+  SpiArmCommandPacket packet;
+  packet.command_number = msg->command_number;
+  packet.shoulder_yaw = msg->shoulder_yaw;
+  packet.shoulder_pitch = msg->shoulder_pitch;
+  packet.elbow_angle = msg->elbow_angle;
+  packet.wrist_angle = msg->wrist_angle;
+  packet.take_picture = msg->take_picture;
+
+  memset(txBuffer, 0, BUFFER_SIZE);
+  memset(rxBuffer, 0, BUFFER_SIZE);
+  memcpy(txBuffer, &packet, sizeof(SpiArmCommandPacket));
+
+  performSpiTransfer(txBuffer, rxBuffer, sizeof(SpiArmCommandPacket));
+}
+
 void StmInterfaceNode::performSpiTransfer(const uint8_t* txData,
                                           uint8_t* rxData, size_t length) {
     if (length > BUFFER_SIZE) {
@@ -54,6 +73,4 @@ void StmInterfaceNode::performSpiTransfer(const uint8_t* txData,
     if (ret < 1) {
         RCLCPP_ERROR(this->get_logger(), "Failed to perform SPI transfer.");
     }
-
-    // TODO: Handle receieved data
 }

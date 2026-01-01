@@ -6,6 +6,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 # find dependencies
+find_package(arm_msgs REQUIRED)
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
@@ -18,6 +19,7 @@ add_executable(stm_interface_node
 )
 
 ament_target_dependencies(stm_interface_node
+  arm_msgs
   rclcpp
   std_msgs
   builtin_interfaces

@@ -9,7 +9,7 @@ ArmCommanderNode::ArmCommanderNode(const std::string receiveTopic, const std::st
     targetSubscription = this->create_subscription<arm_msgs::msg::ArmCommand>(
         receiveTopic,
         10,
-        std::bind(&ArmCommanderNode::handleArmCommand, this, std::placeholders::_1)
+        std::bind(&ArmCommanderNode::receiveArmTarget, this, std::placeholders::_1)
     );
     commandPublisher = this->create_publisher<arm_msgs::msg::ArmCommand>(publishTopic, 10);
     RCLCPP_INFO(this->get_logger(), "ArmCommanderNode has been started.");
@@ -19,7 +19,7 @@ ArmCommanderNode::~ArmCommanderNode() {
     RCLCPP_INFO(this->get_logger(), "ArmCommanderNode is shutting down.");
 }
 
-void ArmCommanderNode::handleArmCommand(const arm_msgs::msg::ArmCommand::SharedPtr msg) {
+void ArmCommanderNode::receiveArmTarget(const arm_msgs::msg::ArmCommand::SharedPtr msg) {
     RCLCPP_INFO(this->get_logger(), "Received Arm Command: %d", msg->command_number);
     currentCommandNumber = msg->command_number;
     targetShoulderYaw = msg->shoulder_yaw;

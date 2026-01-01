@@ -4,14 +4,27 @@
 
 #include <rclcpp/rclcpp.hpp>
 
+#include "arm_msgs/msg/arm_command.hpp"
+
 class StmInterfaceNode : public rclcpp::Node {
-   public:
+public:
     StmInterfaceNode(const char* spiDevice, uint8_t mode = SPI_MODE_0,
                      uint8_t bitsPerWord = 8, uint32_t speed = 1000000);
 
     ~StmInterfaceNode() override;
+
+    void receiveArmCommand(const arm_msgs::msg::ArmCommand::SharedPtr msg);
     
-   private:
+private:
+    typedef struct __attribute__((packed)) {
+        uint16_t command_number;
+        int16_t shoulder_yaw;
+        int16_t shoulder_pitch;
+        int16_t elbow_angle;
+        int16_t wrist_angle;
+        bool take_picture;
+    } SpiArmCommandPacket;
+
     int spiDevFd;
     uint8_t mode;
     uint8_t bitsPerWord;
