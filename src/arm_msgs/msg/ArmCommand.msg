@@ -1,7 +1,7 @@
-int command_number
-int shoulder_yaw
-int shoulder_pitch
-int elbow_angle
-int wrist_angle
+uint16 command_number
+int16 shoulder_yaw
+int16 shoulder_pitch
+int16 elbow_angle
+int16 wrist_angle
 bool take_picture
 bool transmit_from_new_position

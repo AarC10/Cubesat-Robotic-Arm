@@ -1,13 +1,13 @@
 builtin_interfaces/Time stamp
 
 uint8 fault_status
-float m1_commanded_speed
-float m2_commanded_speed
-float m3_commanded_speed
-float servo_commanded_angle
-float shoulder_yaw
-float shoulder_pitch
-float elbow_angle
-float shoulder_yaw_limit_switch
-float temp1
-float temp2
+float32 m1_commanded_speed
+float32 m2_commanded_speed
+float32 m3_commanded_speed
+float32 servo_commanded_angle
+float32 shoulder_yaw
+float32 shoulder_pitch
+float32 elbow_angle
+float32 shoulder_yaw_limit_switch
+float32 temp1
+float32 temp2

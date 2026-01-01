@@ -1,7 +1,7 @@
-int shoulder_yaw
-int shoulder_pitch
-int elbow_angle
-int wrist_angle
+int16 shoulder_yaw
+int16 shoulder_pitch
+int16 elbow_angle
+int16 wrist_angle
 uint8 spreading_factor
 uint32 bandwidth
 uint32 coding_rate
