@@ -1,0 +1,9 @@
+uint32 latitude
+uint32 longitude
+uint16 battery_voltage
+uint16 current_draw
+uint32 uptime
+uint32 gps_time
+uint8 status_bitfield
+uint8 sd_card_fill_percentage
+uint8 latest_picture_id
