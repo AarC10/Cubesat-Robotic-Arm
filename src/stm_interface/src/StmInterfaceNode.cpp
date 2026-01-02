@@ -86,7 +86,7 @@ void StmInterfaceNode::performSpiTransfer(const uint8_t *txData,
 void StmInterfaceNode::reportArmStatus(const SpiStatusPacket &status) {
   RCLCPP_INFO(
       this->get_logger(),
-      "Arm Status - Fault: %d, M1 Speed: %.2f, M2 Speed: %.2f, M3 Speed: "
+      "Arm Status - Fault: %d, M1 Speed: %.2f, M2 Spee: %.2f, M3 Speed: "
       "%.2f, Servo Angle: %.2f, Shoulder Yaw: %.2f, Shoulder Pitch: %.2f, "
       "Elbow Angle: %.2f, Yaw Limit Switch: %.2f, Temp1: %.2f, Temp2: %.2f",
       status.fault_status, status.m1_commanded_speed, status.m2_commanded_speed,
