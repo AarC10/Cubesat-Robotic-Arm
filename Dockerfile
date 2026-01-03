@@ -30,6 +30,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
     gstreamer1.0-plugins-ugly \
     libgstreamer1.0-dev \
     libgstreamer-plugins-base1.0-dev \
+    libgpiod-dev \
     ros-${ROS_DISTRO}-gscam \
     && rm -rf /var/lib/apt/lists/*
 

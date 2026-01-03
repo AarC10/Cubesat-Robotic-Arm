@@ -12,11 +12,14 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(builtin_interfaces REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GPIOD REQUIRED libgpiod)
 
 add_subdirectory(sx126x_driver)
 
 add_executable(radio_transceiver_node 
   src/main.cpp
+  src/sx126xHal.cpp
 )
 
 ament_target_dependencies(radio_transceiver_node
@@ -30,6 +33,7 @@ ament_target_dependencies(radio_transceiver_node
 target_include_directories(radio_transceiver_node PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
+  ${GPIOD_INCLUDE_DIRS}
 )
 
 install(TARGETS radio_transceiver_node
@@ -42,6 +46,7 @@ install(DIRECTORY include/
 
 target_link_libraries(radio_transceiver_node
   sx126x_driver
+  ${GPIOD_LIBRARIES}
 )
 
 if(BUILD_TESTING)
