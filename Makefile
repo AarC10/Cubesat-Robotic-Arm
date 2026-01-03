@@ -2,12 +2,12 @@
 
 all:
 	if [ -f "/.dockerenv" ]; then \
-	  colcon build --symlink-install --event-handlers console_cohesion+; \
+	  colcon build --symlink-install --event-handlers console_cohesion+ --cmake-args -G Ninja; \
 	else \
 	  docker compose run --rm ros bash -lc \
   		"cd /workspace && \
    		source /opt/ros/humble/setup.bash && \
-   		colcon build --symlink-install --event-handlers console_cohesion+"; \
+   		colcon build --symlink-install --event-handlers console_cohesion+" --cmake-args -G Ninja; \
 	fi
 
 up:
