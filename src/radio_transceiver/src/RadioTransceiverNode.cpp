@@ -353,6 +353,8 @@ bool RadioTransceiverNode::decodeFrame(const std::vector<uint8_t> &frame, uint16
 	port = rxPreamble;
 
 	payload.assign(frame.begin() + 2, frame.end());
+    return true;
+}
 
 std::vector<uint8_t> RadioTransceiverNode::buildFrame(const std::vector<uint8_t> &payload) const {
 	std::vector<uint8_t> frame;
