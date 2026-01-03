@@ -1,11 +1,42 @@
 cmake_minimum_required(VERSION 3.8)
-project(camera_handler)
+project(image_compressor)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
 find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(builtin_interfaces REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(arm_msgs REQUIRED)
+
+add_executable(image_compressor_node 
+  src/main.cpp
+  src/ImageCompressorNode.cpp
+)
+
+ament_target_dependencies(image_compressor_node
+  arm_msgs
+  rclcpp
+  std_msgs
+  builtin_interfaces
+  sensor_msgs
+)
+
+target_include_directories(image_compressor_node PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
+
+install(TARGETS image_compressor_node
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(DIRECTORY include/
+  DESTINATION include/
+)
 
 install(
   DIRECTORY launch
