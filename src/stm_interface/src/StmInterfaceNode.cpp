@@ -6,14 +6,19 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-StmInterfaceNode::StmInterfaceNode(const char *spiDevice, uint8_t mode,
-                                   uint8_t bitsPerWord, uint32_t speed)
-    : Node("stm_interface"), mode(mode), bitsPerWord(bitsPerWord),
-      speed(speed) {
-  spiDevFd = open(spiDevice, O_RDWR);
+#include <string>
+
+StmInterfaceNode::StmInterfaceNode()
+    : Node("stm_interface"),
+      mode(static_cast<uint8_t>(this->declare_parameter<int>("spi_mode", SPI_MODE_0))),
+      bitsPerWord(static_cast<uint8_t>(this->declare_parameter<int>("spi_bits_per_word", 8))),
+      speed(static_cast<uint32_t>(this->declare_parameter<int>("spi_speed_hz", 1000000))) {
+  const auto spiDevice = this->declare_parameter<std::string>("spi_device", "/dev/spidev0.0");
+
+  spiDevFd = open(spiDevice.c_str(), O_RDWR);
   if (spiDevFd < 0) {
     RCLCPP_ERROR(this->get_logger(), "Failed to open SPI device: %s",
-                 spiDevice);
+                 spiDevice.c_str());
     throw std::runtime_error("Failed to open SPI device");
   }
 

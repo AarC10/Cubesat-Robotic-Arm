@@ -5,7 +5,7 @@
 
 class ArmCommanderNode : public rclcpp::Node {
 public:
-    ArmCommanderNode(const std::string receiveTopic = "/arm_target", const std::string publishTopic = "/arm_command", const int16_t angleIncrement = 5, const int timeoutIntervalMs = 100);
+    ArmCommanderNode();
 
     ~ArmCommanderNode() override;
 

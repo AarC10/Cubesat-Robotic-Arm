@@ -1,12 +1,14 @@
 #include "sensor_reader/SensorReaderNode.hpp"
 
-SensorReaderNode::SensorReaderNode(const std::string &ina260I2cDev,
-                                   const std::string &ina260Topic,
-                                   uint8_t ina260Addr,
-                                   const std::string &adxl375I2cDev,
-                                   const std::string &adxl375Topic,
-                                   uint8_t adxl375Addr, int readIntervalMs)
-    : Node("sensor_reader_node"), readIntervalMs(readIntervalMs),
+SensorReaderNode::SensorReaderNode()
+    : Node("sensor_reader_node"),
+      readIntervalMs(this->declare_parameter<int>("read_interval_ms", 1000)),
+      adxl375Topic(this->declare_parameter<std::string>("adxl375_topic", "/sensor_msgs/msg/BatteryState")),
+      adxl375I2cDev(this->declare_parameter<std::string>("adxl375_i2c_dev", "/dev/i2c-1")),
+      adxl375Addr(static_cast<uint8_t>(this->declare_parameter<int>("adxl375_addr", 0x53))),
+      ina260Topic(this->declare_parameter<std::string>("ina260_topic", "/sensor_msgs/msg/Ina260")),
+      ina260I2cDev(this->declare_parameter<std::string>("ina260_i2c_dev", "/dev/i2c-1")),
+      ina260Addr(static_cast<uint8_t>(this->declare_parameter<int>("ina260_addr", 0x40))),
       adxl375(adxl375I2cDev, adxl375Addr),
       ina260(ina260I2cDev, ina260Addr, Ina260::Config{}) {
   adxl375Publisher =

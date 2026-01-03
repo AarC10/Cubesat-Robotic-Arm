@@ -1,6 +1,14 @@
 #include "arm_commander/ArmCommanderNode.hpp"
 
-ArmCommanderNode::ArmCommanderNode(const std::string receiveTopic, const std::string publishTopic, const int16_t angleIncrement, const int timeoutIntervalMs) : Node("arm_commander"), angleIncrement(angleIncrement), timeoutIntervalMs(timeoutIntervalMs) {
+#include <string>
+
+ArmCommanderNode::ArmCommanderNode()
+    : Node("arm_commander"),
+      angleIncrement(this->declare_parameter<int16_t>("angle_increment", 5)),
+      timeoutIntervalMs(this->declare_parameter<int>("timeout_interval_ms", 100)) {
+    const auto receiveTopic = this->declare_parameter<std::string>("receive_topic", "/arm_target");
+    const auto publishTopic = this->declare_parameter<std::string>("publish_topic", "/arm_command");
+
     timer = this->create_wall_timer(
         std::chrono::milliseconds(timeoutIntervalMs),
         std::bind(&ArmCommanderNode::timeoutCallback, this)

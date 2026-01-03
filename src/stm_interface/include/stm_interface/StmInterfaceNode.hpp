@@ -9,8 +9,7 @@
 
 class StmInterfaceNode : public rclcpp::Node {
 public:
-  StmInterfaceNode(const char *spiDevice, uint8_t mode = SPI_MODE_0,
-                   uint8_t bitsPerWord = 8, uint32_t speed = 1000000);
+  StmInterfaceNode();
 
   ~StmInterfaceNode() override;
 
