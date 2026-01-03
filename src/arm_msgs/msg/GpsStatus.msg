@@ -1,0 +1,5 @@
+float64 latitude
+float64 longitude
+uint32 timestamp
+uint8 fix_type
+uint8 satellites_visible
