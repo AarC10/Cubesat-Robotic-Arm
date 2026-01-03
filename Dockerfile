@@ -3,12 +3,13 @@ FROM osrf/ros:humble-desktop
 ENV DEBIAN_FRONTEND=noninteractive \
     TERM=xterm-256color \
     ROS_DISTRO=humble \
-    COLCON_WS=/workspace
+    COLCON_WS=/workspace \
+    CMAKE_VERSION=3.31.3
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     build-essential \
-    cmake \
+    wget \
     ninja-build \
     python3-pip \
     python3-rosdep \
@@ -19,7 +20,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gosu \
     sudo \
     procps \
+    gstreamer1.0-tools \
+    gstreamer1.0-plugins-base \
+    gstreamer1.0-plugins-good \
+    gstreamer1.0-plugins-bad \
+    gstreamer1.0-plugins-ugly \
+    libgstreamer1.0-dev \
+    libgstreamer-plugins-base1.0-dev \
+    ros-${ROS_DISTRO}-gscam \
     && rm -rf /var/lib/apt/lists/*
+
+RUN wget https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-x86_64.sh \
+    && chmod +x cmake-${CMAKE_VERSION}-linux-x86_64.sh \
+    && ./cmake-${CMAKE_VERSION}-linux-x86_64.sh --skip-license --prefix=/usr/local \
+    && rm cmake-${CMAKE_VERSION}-linux-x86_64.sh
 
 RUN rosdep init || true && rosdep update
 

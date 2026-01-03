@@ -1,3 +1,6 @@
 [submodule "src/nmea_listener/nmea"]
 	path = src/nmea_listener/nmea
 	url = https://github.com/pcdangio/nmea
+[submodule "src/radio_transceiver/sx126x_driver"]
+	path = src/radio_transceiver/sx126x_driver
+	url = https://github.com/Lora-net/sx126x_driver

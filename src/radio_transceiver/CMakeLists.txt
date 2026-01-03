@@ -12,13 +12,36 @@ find_package(std_msgs REQUIRED)
 find_package(builtin_interfaces REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
-add_executable(radio_transceiver_node src/main.cpp)
+add_subdirectory(sx126x_driver)
+
+add_executable(radio_transceiver_node 
+  src/main.cpp
+  src/StmInterfaceNode.cpp
+)
 
 ament_target_dependencies(radio_transceiver_node
+  arm_msgs
   rclcpp
   std_msgs
   builtin_interfaces
   sensor_msgs
+)
+
+target_include_directories(radio_transceiver_node PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
+
+install(TARGETS radio_transceiver_node
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(DIRECTORY include/
+  DESTINATION include/
+)
+
+target_link_libraries(radio_transceiver_node
+  sx126x_driver
 )
 
 if(BUILD_TESTING)
