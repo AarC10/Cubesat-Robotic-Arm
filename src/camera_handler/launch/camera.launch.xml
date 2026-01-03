@@ -1,12 +1,13 @@
 <launch>
   <arg name="platform" default="jetson"/>
 
-  <node if="$(eval platform == 'jetson')"
+  <node if="$(eval &quot;'$(var platform)' == 'jetson'&quot;)"
         pkg="gscam2" exec="gscam_main" name="camera" output="screen">
-    <param name="gscam_config" value="nvarguscamerasrc sensor-id=0 ! video/x-raw(memory:NVMM),width=1280,height=720,framerate=30/1 ! nvvidconv ! video/x-raw,format=BGR ! appsink"/>
+    <param name="gscam_config"
+           value="nvarguscamerasrc sensor-id=0 ! video/x-raw(memory:NVMM),width=1280,height=720,framerate=30/1 ! nvvidconv ! video/x-raw,format=BGR ! appsink"/>
   </node>
 
-  <node if="$(eval platform == 'pi')"
+  <node if="$(eval &quot;'$(var platform)' == 'pi'&quot;)"
         pkg="libcamera_ros_driver" exec="camera_node" name="camera" output="screen">
     <param name="camera_name" value="camera"/>
     <param name="width" value="1280"/>
@@ -14,4 +15,3 @@
     <param name="frame_rate" value="30"/>
   </node>
 </launch>
-
