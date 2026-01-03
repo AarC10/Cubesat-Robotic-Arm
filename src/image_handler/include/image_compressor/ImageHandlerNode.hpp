@@ -3,6 +3,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/string.hpp>
 #include <sensor_msgs/msg/image.hpp>
+#include <mutex>
 
 class ImageCompressorNode final : public rclcpp::Node {
 public:
@@ -15,9 +16,19 @@ private:
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr rawImageSub;
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr compressedImagePub;
 
+  std::mutex imageMutex;
   sensor_msgs::msg::Image::SharedPtr lastRawImage;
 
   // Callbacks
-  void handleImageRequest(const bool msg);
+  void handleImageRequest(const bool sendCompressed);
   void handleRawImage(const sensor_msgs::msg::Image::SharedPtr msg);
+  
+
+  // File saving
+  std::string saveDirectory;
+
+  // Helpers
+  void compress();
+  void saveRawImageToDisk();
+  
 };
