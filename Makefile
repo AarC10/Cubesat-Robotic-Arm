@@ -10,6 +10,9 @@ all:
    		colcon build --symlink-install --event-handlers console_cohesion+" --cmake-args -G Ninja; \
 	fi
 
+clean:
+	rm -rf build/ install/ log/
+
 up:
 	LOCAL_UID=$$(id -u) LOCAL_GID=$$(id -g) docker compose up --build -d
 
