@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(image_compressor)
+project(image_handler)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -12,12 +12,12 @@ find_package(builtin_interfaces REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(arm_msgs REQUIRED)
 
-add_executable(image_compressor_node 
+add_executable(image_handler_node 
   src/main.cpp
   src/ImageCompressorNode.cpp
 )
 
-ament_target_dependencies(image_compressor_node
+ament_target_dependencies(image_handler_node
   arm_msgs
   rclcpp
   std_msgs
@@ -25,12 +25,12 @@ ament_target_dependencies(image_compressor_node
   sensor_msgs
 )
 
-target_include_directories(image_compressor_node PUBLIC
+target_include_directories(image_handler_node PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
 
-install(TARGETS image_compressor_node
+install(TARGETS image_handler_node
   DESTINATION lib/${PROJECT_NAME}
 )
 

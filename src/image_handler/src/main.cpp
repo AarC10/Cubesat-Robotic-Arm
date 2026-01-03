@@ -1,4 +1,4 @@
-#include "image_compressor/ImageCompressorNode.hpp"
+#include "image_handler/ImageCompressorNode.hpp"
 
 #include <rclcpp/rclcpp.hpp>
 
