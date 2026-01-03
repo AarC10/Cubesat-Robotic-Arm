@@ -15,6 +15,8 @@ ImageHandlerNode::ImageHandlerNode() : Node("image_compressor") {
   saveDirectory = this->declare_parameter<std::string>("save_directory", "/tmp/images");
 }
 
+ImageHandlerNode::~ImageHandlerNode() = default;
+
 void ImageHandlerNode::handleImageRequest(const bool sendCompressed) {
   std::lock_guard<std::mutex> lock(imageMutex);
   if (sendCompressed) {
