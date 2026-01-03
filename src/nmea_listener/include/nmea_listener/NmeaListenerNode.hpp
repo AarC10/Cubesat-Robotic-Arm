@@ -7,6 +7,8 @@
 #include <string>
 #include <thread>
 
+#include "arm_msgs/msg/gps_status.hpp"
+
 class NmeaListenerNode final : public rclcpp::Node {
 public:
   explicit NmeaListenerNode(
@@ -18,14 +20,32 @@ private:
   int openSerial(const std::string &device, int baud);
 
 private:
+  struct CurrentState {
+    double latitude{0.0};
+    double longitude{0.0};
+    uint8_t fix_type{0};
+    uint8_t satellites_visible{0};
+    uint32_t timestamp{0};
+  };
+
   std::string port;
   int baud;
-  std::string topic;
+  std::string rawNmeaTopic;
+  std::string gpsStatusTopic;
   int maxLineLen;
 
-  rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher;
+  rclcpp::Publisher<arm_msgs::msg::GpsStatus>::SharedPtr gpsStatusPublisher;
+
+  CurrentState currentState;
+  std::mutex currentStateMutex;
 
   int fd{-1};
   std::atomic<bool> running{false};
   std::thread readerThread;
+
+  rclcpp::TimerBase::SharedPtr timer;
+
+  void handleRawNmeaLine(const std::string &line);
+
+  void publishGpsStatusCallback();
 };

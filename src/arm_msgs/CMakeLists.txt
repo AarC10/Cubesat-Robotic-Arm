@@ -15,6 +15,7 @@ find_package(trajectory_msgs REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/ArmCommand.msg"
   "msg/ArmStatus.msg"
+  "msg/GpsStatus.msg"
   "msg/HeartbeatStatus.msg"
   "msg/RadioParametersCommand.msg"
   DEPENDENCIES builtin_interfaces
