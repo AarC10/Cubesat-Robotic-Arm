@@ -141,7 +141,7 @@ bool Adxl375::writeReg(uint8_t reg, uint8_t val) {
   msg.addr = addr;
   msg.flags = 0;
   msg.len = sizeof(data);
-  msg.buff = data;
+  msg.buf = data;
 
   i2c_rdwr_ioctl_data rdwr{};
   rdwr.msgs = &msg;
@@ -164,12 +164,12 @@ bool Adxl375::readRegs(uint8_t start_reg, uint8_t *buff, size_t len) {
   msgs[0].addr = addr;
   msgs[0].flags = 0;
   msgs[0].len = 1;
-  msgs[0].buff = &start_reg;
+  msgs[0].buf = &start_reg;
 
   msgs[1].addr = addr;
   msgs[1].flags = I2C_M_RD;
   msgs[1].len = static_cast<__u16>(len);
-  msgs[1].buff = buff;
+  msgs[1].buf = buff;
 
   i2c_rdwr_ioctl_data rdwr{};
   rdwr.msgs = msgs;

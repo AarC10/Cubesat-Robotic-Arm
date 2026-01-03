@@ -45,7 +45,7 @@ public:
 private:
   bool writeReg(uint8_t reg, uint8_t val);
   bool readReg(uint8_t reg, uint8_t &out);
-  bool readRegs(uint8_t start_reg, uint8_t *buf, size_t len);
+  bool readRegs(uint8_t start_reg, uint8_t *buff, size_t len);
 
 private:
   std::string dev;
