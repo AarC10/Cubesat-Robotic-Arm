@@ -1,0 +1,3 @@
+[submodule "src/nmea_listener/nmea"]
+	path = src/nmea_listener/nmea
+	url = https://github.com/pcdangio/nmea
