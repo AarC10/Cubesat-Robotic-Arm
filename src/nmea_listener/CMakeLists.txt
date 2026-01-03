@@ -13,6 +13,8 @@ find_package(builtin_interfaces REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(arm_msgs REQUIRED)
 
+add_subdirectory(nmea)
+
 add_executable(nmea_listener_node 
   src/main.cpp
   src/NmeaListenerNode.cpp
@@ -37,6 +39,10 @@ install(TARGETS nmea_listener_node
 
 install(DIRECTORY include/
   DESTINATION include/
+)
+
+target_link_libraries(nmea_listener_node
+  nmea
 )
 
 

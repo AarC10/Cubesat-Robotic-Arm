@@ -1,0 +1,179 @@
+#include "nmea_listener/NmeaListenerNode.hpp"
+
+#include <cerrno>
+#include <cstring>
+#include <fcntl.h>
+#include <poll.h>
+#include <termios.h>
+#include <unistd.h>
+#include <vector>
+
+static speed_t baudToSpeed(int baud) {
+  switch (baud) {
+  case 4800:
+    return B4800;
+  case 9600:
+    return B9600;
+  case 19200:
+    return B19200;
+  case 38400:
+    return B38400;
+  case 57600:
+    return B57600;
+  case 115200:
+    return B115200;
+  case 230400:
+    return B230400;
+  default:
+    return 0;
+  }
+}
+
+NmeaListenerNode::NmeaListenerNode(const rclcpp::NodeOptions &options)
+    : Node("nmea_listener", options) {
+  port = declare_parameter<std::string>("port", "/dev/ttyS0"); // methinks this is the default for pi zero 2w
+  baud = declare_parameter<int>("baud", 9600);
+  topic = declare_parameter<std::string>("topic", "/nmea/raw");
+  maxLineLen = declare_parameter<int>("max_line_len", 512);
+
+  publisher = create_publisher<std_msgs::msg::String>(topic, rclcpp::QoS(50));
+
+  fd = openSerial(port, baud);
+  RCLCPP_INFO(get_logger(), "Opened %s @ %d baud", port.c_str(), baud);
+
+  running.store(true);
+  readerThread = std::thread(&NmeaListenerNode::readerLoop, this);
+
+  RCLCPP_INFO(get_logger(), "NMEA Listenrer Node started.");
+}
+
+NmeaListenerNode::~NmeaListenerNode() {
+  running.store(false);
+
+  if (readerThread.joinable()) {
+    readerThread.join();
+  }
+
+  if (fd >= 0) {
+    ::close(fd);
+  }
+}
+
+int NmeaListenerNode::openSerial(const std::string &device, int baudRate) {
+  int fd = ::open(device.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);
+  if (fd < 0) {
+    throw std::runtime_error("open failed: " +
+                             std::string(std::strerror(errno)));
+  }
+
+  termios tty{};
+  if (tcgetattr(fd, &tty) != 0) {
+    ::close(fd);
+    throw std::runtime_error("tcgetattr failed");
+  }
+
+  cfmakeraw(&tty);
+
+  tty.c_cflag |= (CLOCAL | CREAD);
+  tty.c_cflag &= ~PARENB;
+  tty.c_cflag &= ~CSTOPB;
+  tty.c_cflag &= ~CSIZE;
+  tty.c_cflag |= CS8;
+
+#ifdef CRTSCTS
+  tty.c_cflag &= ~CRTSCTS;
+#endif
+
+  tty.c_iflag &= ~(IXON | IXOFF | IXANY);
+  tty.c_cc[VMIN] = 0;
+  tty.c_cc[VTIME] = 0;
+
+  speed_t speed = baudToSpeed(baudRate);
+  if (speed == 0) {
+    ::close(fd);
+    throw std::runtime_error("Unsupported baud rate");
+  }
+
+  cfsetispeed(&tty, speed);
+  cfsetospeed(&tty, speed);
+
+  if (tcsetattr(fd, TCSANOW, &tty) != 0) {
+    ::close(fd);
+    throw std::runtime_error("tcsetattr failed");
+  }
+
+  tcflush(fd, TCIOFLUSH);
+  return fd;
+}
+
+void NmeaListenerNode::readerLoop() {
+  std::vector<char> readBuf(4096);
+  std::string buffer;
+  buffer.reserve(4096);
+
+  pollfd pfd{};
+  pfd.fd = fd;
+  pfd.events = POLLIN;
+
+  while (running.load()) {
+    int ret = ::poll(&pfd, 1, 200);
+    if (ret <= 0) {
+      if (ret < 0 && errno != EINTR) {
+        RCLCPP_ERROR(get_logger(), "poll error: %s", std::strerror(errno));
+      }
+      continue;
+    }
+
+    if (!(pfd.revents & POLLIN)) {
+      continue;
+    }
+
+    ssize_t n = ::read(fd, readBuf.data(), readBuf.size());
+    if (n <= 0) {
+      if (n < 0 && errno != EAGAIN && errno != EWOULDBLOCK) {
+        RCLCPP_ERROR(get_logger(), "read error: %s", std::strerror(errno));
+      }
+      continue;
+    }
+
+    buffer.append(readBuf.data(), static_cast<size_t>(n));
+
+    while (true) {
+      size_t lf = buffer.find('\n');
+      if (lf == std::string::npos) {
+        break;
+      }
+
+      std::string line = buffer.substr(0, lf + 1);
+      buffer.erase(0, lf + 1);
+
+      while (!line.empty() && (line.back() == '\n' || line.back() == '\r')) {
+        line.pop_back();
+      }
+
+      if (line.empty()) {
+        continue;
+      }
+
+      if (static_cast<int>(line.size()) > maxLineLen) {
+        RCLCPP_WARN(get_logger(), "Dropping overlong NMEA line (%zu bytes)",
+                    line.size());
+        continue;
+      }
+
+      if (line[0] != '$') continue; // TODO: ight need to find $ too 
+
+      // TODO: pass to nmea lib
+
+      std_msgs::msg::String msg;
+      msg.data = std::move(line);
+      publisher->publish(msg);
+    }
+
+    if (buffer.size() > static_cast<size_t>(maxLineLen * 4)) {
+      RCLCPP_WARN(get_logger(),
+                  "UART buffer overflow without newline, clearing");
+      buffer.clear();
+    }
+  }
+}
