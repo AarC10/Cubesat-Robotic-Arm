@@ -1,13 +1,13 @@
-#include "image_handler/ImageCompressorNode.hpp"
+#include "image_handler/ImageHandlerNode.hpp"
 
-ImageCompressorNode::ImageCompressorNode() : Node("image_compressor") {
+ImageHandlerNode::ImageHandlerNode() : Node("image_compressor") {
   imageRequestSub = this->create_subscription<bool>(
       "image_request", 10,
-      std::bind(&ImageCompressorNode::handleImageRequest, this, std::placeholders::_1));
+      std::bind(&ImageHandlerNode::handleImageRequest, this, std::placeholders::_1));
 
   rawImageSub = this->create_subscription<sensor_msgs::msg::Image>(
       "raw_image", 10,
-      std::bind(&ImageCompressorNode::handleRawImage, this, std::placeholders::_1));
+      std::bind(&ImageHandlerNode::handleRawImage, this, std::placeholders::_1));
 
   compressedImagePub = this->create_publisher<std_msgs::msg::String>("compressed_image", 10);
 
@@ -15,7 +15,7 @@ ImageCompressorNode::ImageCompressorNode() : Node("image_compressor") {
   saveDirectory = this->declare_parameter<std::string>("save_directory", "/tmp/images");
 }
 
-void ImageCompressorNode::handleImageRequest(const bool sendCompressed) {
+void ImageHandlerNode::handleImageRequest(const bool sendCompressed) {
   std::lock_guard<std::mutex> lock(imageMutex);
   if (sendCompressed) {
     if (lastRawImage) {
@@ -31,16 +31,16 @@ void ImageCompressorNode::handleImageRequest(const bool sendCompressed) {
 
 }
 
-void ImageCompressorNode::handleRawImage(const sensor_msgs::msg::Image::SharedPtr msg) {
+void ImageHandlerNode::handleRawImage(const sensor_msgs::msg::Image::SharedPtr msg) {
   std::lock_guard<std::mutex> lock(imageMutex);
   lastRawImage = msg;
 }
 
-void ImageCompressorNode::saveRawImageToDisk() {
+void ImageHandlerNode::saveRawImageToDisk() {
     // TODO: Need to integrate OpenCV
 }
 
 
-void ImageCompressorNode::compress() {
+void ImageHandlerNode::compress() {
   // TODO: Need to integrate compression lib 
 }

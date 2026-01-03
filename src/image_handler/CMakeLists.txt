@@ -14,7 +14,7 @@ find_package(arm_msgs REQUIRED)
 
 add_executable(image_handler_node 
   src/main.cpp
-  src/ImageCompressorNode.cpp
+  src/ImageHandlerNode.cpp
 )
 
 ament_target_dependencies(image_handler_node
