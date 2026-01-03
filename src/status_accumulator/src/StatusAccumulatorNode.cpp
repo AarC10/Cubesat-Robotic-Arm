@@ -42,6 +42,7 @@ StatusAccumulatorNode::~StatusAccumulatorNode() {
 void StatusAccumulatorNode::publishHeartbeatStatusCallback() {
   heartbeatStatus.uptime = static_cast<uint32_t>(this->now().seconds());
   updateSdCardFillPercent();
+  // TODO: Picture # and status field
   heartbeatStatusPublisher->publish(heartbeatStatus);
 }
 
