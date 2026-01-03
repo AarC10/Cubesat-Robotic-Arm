@@ -13,6 +13,32 @@ find_package(builtin_interfaces REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(arm_msgs REQUIRED)
 
+add_executable(status_accumulator_node 
+  src/main.cpp 
+  src/StatusAccumulatorNode.cpp
+)
+
+ament_target_dependencies(status_accumulator_node
+  arm_msgs
+  rclcpp
+  std_msgs
+  builtin_interfaces
+  sensor_msgs
+)
+
+target_include_directories(status_accumulator_node PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
+
+install(TARGETS status_accumulator_node
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(DIRECTORY include/
+  DESTINATION include/
+)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights

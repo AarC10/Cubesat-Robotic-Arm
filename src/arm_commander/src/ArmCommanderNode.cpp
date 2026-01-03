@@ -2,7 +2,7 @@
 
 #include <string>
 
-ArmCommanderNode::ArmCommanderNode()
+StatusAccumulatorNode::StatusAccumulatorNode()
     : Node("arm_commander"),
       angleIncrement(this->declare_parameter<int16_t>("angle_increment", 5)),
       timeoutIntervalMs(this->declare_parameter<int>("timeout_interval_ms", 100)) {
@@ -11,23 +11,23 @@ ArmCommanderNode::ArmCommanderNode()
 
     timer = this->create_wall_timer(
         std::chrono::milliseconds(timeoutIntervalMs),
-        std::bind(&ArmCommanderNode::timeoutCallback, this)
+        std::bind(&StatusAccumulatorNode::timeoutCallback, this)
     );
 
     targetSubscription = this->create_subscription<arm_msgs::msg::ArmCommand>(
         receiveTopic,
         10,
-        std::bind(&ArmCommanderNode::receiveArmTarget, this, std::placeholders::_1)
+        std::bind(&StatusAccumulatorNode::receiveArmTarget, this, std::placeholders::_1)
     );
     commandPublisher = this->create_publisher<arm_msgs::msg::ArmCommand>(publishTopic, 10);
     RCLCPP_INFO(this->get_logger(), "ArmCommanderNode has been started.");
 }
 
-ArmCommanderNode::~ArmCommanderNode() {
+StatusAccumulatorNode::~StatusAccumulatorNode() {
     RCLCPP_INFO(this->get_logger(), "ArmCommanderNode is shutting down.");
 }
 
-void ArmCommanderNode::receiveArmTarget(const arm_msgs::msg::ArmCommand::SharedPtr msg) {
+void StatusAccumulatorNode::receiveArmTarget(const arm_msgs::msg::ArmCommand::SharedPtr msg) {
     RCLCPP_INFO(this->get_logger(), "Received Arm Command: %d", msg->command_number);
     currentCommandNumber = msg->command_number;
     targetShoulderYaw = msg->shoulder_yaw;
@@ -36,7 +36,7 @@ void ArmCommanderNode::receiveArmTarget(const arm_msgs::msg::ArmCommand::SharedP
     targetWristAngle = msg->wrist_angle;
 }
 
-void ArmCommanderNode::timeoutCallback() {
+void StatusAccumulatorNode::timeoutCallback() {
     incrementToTarget(commandShoulderYaw, targetShoulderYaw);
     incrementToTarget(commandShoulderPitch, targetShoulderPitch);
     incrementToTarget(commandElbowAngle, targetElbowAngle);
@@ -64,7 +64,7 @@ void ArmCommanderNode::timeoutCallback() {
     commandPublisher->publish(commandMsg);
 }
 
-void ArmCommanderNode::incrementToTarget(int16_t &current, int16_t target) {
+void StatusAccumulatorNode::incrementToTarget(int16_t &current, int16_t target) {
     if (current < target) {
         current += angleIncrement;
         if (current > target) {
@@ -78,7 +78,7 @@ void ArmCommanderNode::incrementToTarget(int16_t &current, int16_t target) {
     }
 }
 
-bool ArmCommanderNode::atTarget() const {
+bool StatusAccumulatorNode::atTarget() const {
     return (commandShoulderYaw == targetShoulderYaw) &&
            (commandShoulderPitch == targetShoulderPitch) &&
            (commandElbowAngle == targetElbowAngle) &&

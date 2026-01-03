@@ -3,10 +3,10 @@
 SensorReaderNode::SensorReaderNode()
     : Node("sensor_reader_node"),
       readIntervalMs(this->declare_parameter<int>("read_interval_ms", 1000)),
-      adxl375Topic(this->declare_parameter<std::string>("adxl375_topic", "/sensor_msgs/msg/BatteryState")),
+      adxl375Topic(this->declare_parameter<std::string>("adxl375_topic", "/sensor_msgs/msg/Imu")),
       adxl375I2cDev(this->declare_parameter<std::string>("adxl375_i2c_dev", "/dev/i2c-1")),
       adxl375Addr(static_cast<uint8_t>(this->declare_parameter<int>("adxl375_addr", 0x53))),
-      ina260Topic(this->declare_parameter<std::string>("ina260_topic", "/sensor_msgs/msg/Ina260")),
+      ina260Topic(this->declare_parameter<std::string>("ina260_topic", "/sensor_msgs/msg/BatteryState")),
       ina260I2cDev(this->declare_parameter<std::string>("ina260_i2c_dev", "/dev/i2c-1")),
       ina260Addr(static_cast<uint8_t>(this->declare_parameter<int>("ina260_addr", 0x40))),
       adxl375(adxl375I2cDev, adxl375Addr),

@@ -3,11 +3,11 @@
 #include <rclcpp/rclcpp.hpp>
 #include "arm_msgs/msg/arm_command.hpp"
 
-class ArmCommanderNode : public rclcpp::Node {
+class StatusAccumulatorNode : public rclcpp::Node {
 public:
-    ArmCommanderNode();
+    StatusAccumulatorNode();
 
-    ~ArmCommanderNode() override;
+    ~StatusAccumulatorNode() override;
 
     void receiveArmTarget(const arm_msgs::msg::ArmCommand::SharedPtr msg);
     
