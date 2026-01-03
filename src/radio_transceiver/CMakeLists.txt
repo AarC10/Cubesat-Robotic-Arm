@@ -19,6 +19,7 @@ add_subdirectory(sx126x_driver)
 
 add_executable(radio_transceiver_node 
   src/main.cpp
+  src/RadioTransceiverNode.cpp
   src/sx126xHal.cpp
 )
 
