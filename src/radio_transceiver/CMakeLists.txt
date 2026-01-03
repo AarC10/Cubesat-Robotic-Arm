@@ -6,6 +6,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 # find dependencies
+find_package(arm_msgs REQUIRED)
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
@@ -16,7 +17,6 @@ add_subdirectory(sx126x_driver)
 
 add_executable(radio_transceiver_node 
   src/main.cpp
-  src/StmInterfaceNode.cpp
 )
 
 ament_target_dependencies(radio_transceiver_node

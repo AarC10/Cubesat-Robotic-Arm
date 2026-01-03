@@ -6,11 +6,14 @@ ENV DEBIAN_FRONTEND=noninteractive \
     COLCON_WS=/workspace \
     CMAKE_VERSION=3.31.3
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
     git \
     build-essential \
     wget \
     ninja-build \
+    clang \
+    clang-format \
+    clang-tidy \
     python3-pip \
     python3-rosdep \
     python3-colcon-common-extensions \
