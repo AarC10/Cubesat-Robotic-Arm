@@ -80,15 +80,15 @@ bool Ina260::writeConfig(const Config& cfg) {
 }
 
 std::optional<uint16_t> Ina260::readManufacturerId() {
-    uint16_t v = 0;
-    if (!readReg16(REG_MAN_ID, v)) return std::nullopt;
-    return v;
+    uint16_t val = 0;
+    if (!readReg16(REG_MAN_ID, val)) return std::nullopt;
+    return val;
 }
 
 std::optional<uint16_t> Ina260::readDieId() {
-    uint16_t v = 0;
-    if (!readReg16(REG_DIE_ID, v)) return std::nullopt;
-    return v;
+    uint16_t val = 0;
+    if (!readReg16(REG_DIE_ID, val)) return std::nullopt;
+    return val;
 }
 
 std::optional<double> Ina260::readBusVoltage_V() {
@@ -104,9 +104,9 @@ std::optional<double> Ina260::readCurrent_A() {
 }
 
 std::optional<double> Ina260::readPower_W() {
-    uint16_t r = 0;
-    if (!readReg16(REG_POWER, r)) return std::nullopt;
-    return static_cast<double>(r) * WATTS_PER_LSB;
+    uint16_t val = 0;
+    if (!readReg16(REG_POWER, val)) return std::nullopt;
+    return static_cast<double>(val) * WATTS_PER_LSB;
 }
 
 bool Ina260::writeReg16(uint8_t reg, uint16_t val_host) {
