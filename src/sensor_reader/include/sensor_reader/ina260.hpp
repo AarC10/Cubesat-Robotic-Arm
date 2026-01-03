@@ -53,7 +53,7 @@ public:
               mode(Mode::CONT_BOTH) {}
     };
 
-    explicit Ina260(std::string i2c_dev_path, uint8_t addr = 0x40, Config cfg = Config());
+    explicit Ina260(std::string i2cDevPath, uint8_t addr = 0x40, Config cfg = Config());
     ~Ina260();
 
     Ina260(const Ina260&) = delete;
@@ -75,8 +75,8 @@ public:
     std::optional<double> readPower_W();      // W
 
 private:
-    bool writeReg16(uint8_t reg, uint16_t val_be_host);
-    bool readReg16(uint8_t reg, uint16_t& out_be_host);
+    bool writeReg16(uint8_t reg, uint16_t valHost);
+    bool readReg16(uint8_t reg, uint16_t& outHost);
 
 private:
     std::string dev;

@@ -15,6 +15,7 @@ find_package(arm_msgs REQUIRED)
 
 add_executable(sensor_reader_node 
   src/main.cpp 
+  src/SensorReaderNode.cpp
   src/adxl375.cpp
   src/ina260.cpp
 )

@@ -10,7 +10,7 @@
 #include <linux/i2c-dev.h>
 #include <linux/i2c.h>
 
-Adxl375::Adxl375(std::string i2c_devpath, uint8_t addr) : dev(std::move(i2c_devpath)), addr(addr) {}
+Adxl375::Adxl375(std::string i2cDevPath, uint8_t addr) : dev(std::move(i2cDevPath)), addr(addr) {}
 
 Adxl375::~Adxl375() { close(); }
 
@@ -80,12 +80,12 @@ std::optional<uint8_t> Adxl375::readDeviceId() {
   return val;
 }
 
-bool Adxl375::setDataFormat(uint8_t data_format) {
-  return writeReg(REG_DATA_FORMAT, data_format);
+bool Adxl375::setDataFormat(uint8_t dataFormat) {
+  return writeReg(REG_DATA_FORMAT, dataFormat);
 }
 
-bool Adxl375::setBwRate(uint8_t bw_rate) {
-  return writeReg(REG_BW_RATE, bw_rate);
+bool Adxl375::setBwRate(uint8_t bwRate) {
+  return writeReg(REG_BW_RATE, bwRate);
 }
 
 bool Adxl375::setMeasurementMode(bool enable) {
@@ -158,13 +158,13 @@ bool Adxl375::readReg(uint8_t reg, uint8_t &out) {
   return readRegs(reg, &out, 1);
 }
 
-bool Adxl375::readRegs(uint8_t start_reg, uint8_t *buff, size_t len) {
+bool Adxl375::readRegs(uint8_t startReg, uint8_t *buff, size_t len) {
   i2c_msg msgs[2]{};
 
   msgs[0].addr = addr;
   msgs[0].flags = 0;
   msgs[0].len = 1;
-  msgs[0].buf = &start_reg;
+  msgs[0].buf = &startReg;
 
   msgs[1].addr = addr;
   msgs[1].flags = I2C_M_RD;

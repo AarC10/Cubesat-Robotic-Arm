@@ -11,8 +11,8 @@ static inline uint16_t bswap16(uint16_t v) {
     return static_cast<uint16_t>((v << 8) | (v >> 8));
 }
 
-Ina260::Ina260(std::string i2c_dev_path, uint8_t addr, Config cfg)
-    : dev(std::move(i2c_dev_path)), addr(addr), cfg(cfg) {}
+Ina260::Ina260(std::string i2cDevPath, uint8_t addr, Config cfg)
+    : dev(std::move(i2cDevPath)), addr(addr), cfg(cfg) {}
 
 Ina260::~Ina260() { close(); }
 
@@ -109,9 +109,9 @@ std::optional<double> Ina260::readPower_W() {
     return static_cast<double>(val) * WATTS_PER_LSB;
 }
 
-bool Ina260::writeReg16(uint8_t reg, uint16_t val_host) {
+bool Ina260::writeReg16(uint8_t reg, uint16_t valHost) {
     // INA260 uses big endian register 
-    uint16_t be = bswap16(val_host);
+    uint16_t be = bswap16(valHost);
     uint8_t tx[3] = { reg, static_cast<uint8_t>(be >> 8), static_cast<uint8_t>(be & 0xFF) };
 
     i2c_msg msg{};
@@ -127,7 +127,7 @@ bool Ina260::writeReg16(uint8_t reg, uint16_t val_host) {
     return ioctl(fd, I2C_RDWR, &rdwr) >= 0;
 }
 
-bool Ina260::readReg16(uint8_t reg, uint16_t& out_host) {
+bool Ina260::readReg16(uint8_t reg, uint16_t& outHost) {
     uint8_t rx[2]{};
 
     i2c_msg msgs[2]{};
@@ -149,6 +149,6 @@ bool Ina260::readReg16(uint8_t reg, uint16_t& out_host) {
 
     // rx is big-endian convert to host
     uint16_t be = static_cast<uint16_t>((static_cast<uint16_t>(rx[0]) << 8) | rx[1]);
-    out_host = bswap16(be);
+    outHost = bswap16(be);
     return true;
 }

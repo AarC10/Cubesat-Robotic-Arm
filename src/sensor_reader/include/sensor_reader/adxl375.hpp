@@ -19,7 +19,7 @@ public:
   };
 
   // Either 0x53 or 0x1D
-  explicit Adxl375(std::string i2c_dev_path, uint8_t addr = 0x53);
+  explicit Adxl375(std::string i2cDevPath, uint8_t addr = 0x53);
   ~Adxl375();
 
   Adxl375(const Adxl375 &) = delete;
@@ -33,8 +33,8 @@ public:
 
   bool isOpen() const { return fd >= 0; }
 
-  bool setDataFormat(uint8_t data_format);
-  bool setBwRate(uint8_t bw_rate);
+  bool setDataFormat(uint8_t dataFormat);
+  bool setBwRate(uint8_t bwRate);
   bool setMeasurementMode(bool enable);
   bool setOffsets(int8_t ox, int8_t oy, int8_t oz);
 
@@ -45,7 +45,7 @@ public:
 private:
   bool writeReg(uint8_t reg, uint8_t val);
   bool readReg(uint8_t reg, uint8_t &out);
-  bool readRegs(uint8_t start_reg, uint8_t *buff, size_t len);
+  bool readRegs(uint8_t startReg, uint8_t *buff, size_t len);
 
 private:
   std::string dev;
