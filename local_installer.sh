@@ -14,11 +14,11 @@ apt_update() {
 apt_update
 sudo apt-get install -y --no-install-recommends ca-certificates curl gnupg lsb-release software-properties-common
 sudo add-apt-repository -y universe
-sudo mkdir -p /etc/apt/keyrings
-sudo rm -f /etc/apt/keyrings/ros-archive-keyring.asc /etc/apt/keyrings/ros-archive-keyring.gpg
-curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key | sudo gpg --dearmor -o /etc/apt/keyrings/ros-archive-keyring.gpg
-sudo chmod 644 /etc/apt/keyrings/ros-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/ros2.list >/dev/null
+sudo mkdir -p /usr/share/keyrings
+sudo rm -f /usr/share/keyrings/ros-archive-keyring.gpg /etc/apt/keyrings/ros-archive-keyring.gpg /etc/apt/sources.list.d/ros2.list
+curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key | sudo gpg --dearmor -o /usr/share/keyrings/ros-archive-keyring.gpg
+sudo chmod 644 /usr/share/keyrings/ros-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/ros2.list >/dev/null
 apt_update
 sudo apt-get upgrade -y
 sudo apt-get install -y --no-install-recommends \

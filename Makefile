@@ -1,7 +1,7 @@
 .PHONY: up down exec logs build
 
 all:
-	if [ -f "/.dockerenv" ]; then \
+	if [ -f "/.dockerenv" ] || [ -f "/opt/ros/humble/setup.bash" ]; then \
 	  colcon build --symlink-install --event-handlers console_cohesion+ --cmake-args -G Ninja; \
 	else \
 	  docker compose run --rm ros bash -lc \
