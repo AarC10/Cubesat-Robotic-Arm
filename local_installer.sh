@@ -35,6 +35,23 @@ sudo apt-get install -y --no-install-recommends \
 sudo apt-get clean
 sudo rm -rf /var/lib/apt/lists/*
 
+# CMake 3.31.3
+# Check aarch64 or x86_64
+ARCH=$(uname -m)
+if [ "$ARCH" != "x86_64" ] && [ "$ARCH" !=
+    "aarch64" ]; then
+    echo "Unsupported architecture: $ARCH"
+    exit 1
+fi
+
+cd /tmp
+CMAKE_TAR="cmake-${CMAKE_VERSION}-Linux-${ARCH}.tar.gz"
+wget "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/${CMAKE_TAR}"
+tar -xzvf "${CMAKE_TAR}"
+sudo cp -r "cmake-${CMAKE_VERSION}-Linux-${ARCH}/"* /usr
+cd -
+rm -rf /tmp/cmake-*
+
 # rosdep setup
 sudo rosdep init || true
 rosdep update
