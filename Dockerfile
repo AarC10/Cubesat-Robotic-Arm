@@ -31,6 +31,8 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
     libgstreamer1.0-dev \
     libgstreamer-plugins-base1.0-dev \
     libgpiod-dev \
+    libopencv-dev \
+    ros-${ROS_DISTRO}-vision-opencv \
     ros-${ROS_DISTRO}-gscam \
     && rm -rf /var/lib/apt/lists/*
 

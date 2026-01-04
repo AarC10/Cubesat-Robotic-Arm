@@ -11,6 +11,8 @@ find_package(std_msgs REQUIRED)
 find_package(builtin_interfaces REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(arm_msgs REQUIRED)
+find_package(cv_bridge REQUIRED)
+find_package(OpenCV REQUIRED)
 
 add_executable(image_handler_node 
   src/main.cpp
@@ -23,11 +25,17 @@ ament_target_dependencies(image_handler_node
   std_msgs
   builtin_interfaces
   sensor_msgs
+  cv_bridge
+)
+
+target_link_libraries(image_handler_node
+  ${OpenCV_LIBRARIES}
 )
 
 target_include_directories(image_handler_node PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
+  ${OpenCV_INCLUDE_DIRS}
 )
 
 install(TARGETS image_handler_node
