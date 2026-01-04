@@ -35,13 +35,6 @@ sudo apt-get install -y --no-install-recommends \
 sudo apt-get clean
 sudo rm -rf /var/lib/apt/lists/*
 
-# CMake 3.31.3
-cd /tmp
-wget https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-x86_64.sh
-chmod +x cmake-${CMAKE_VERSION}-linux-x86_64.sh
-sudo ./cmake-${CMAKE_VERSION}-linux-x86_64.sh --skip-license --prefix=/usr/local
-rm cmake-${CMAKE_VERSION}-linux-x86_64.sh
-
 # rosdep setup
 sudo rosdep init || true
 rosdep update
