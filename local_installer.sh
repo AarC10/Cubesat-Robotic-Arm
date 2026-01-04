@@ -5,13 +5,18 @@ CMAKE_VERSION=3.31.3
 ROS_DISTRO=humble
 COLCON_WS=/workspace
 
-# Helper to keep noninteractive apt runs tidy
 export DEBIAN_FRONTEND=noninteractive
 apt_update() {
   sudo apt-get update -y
 }
 
-# Base prep
+# Repos and base prep
+apt_update
+sudo apt-get install -y --no-install-recommends software-properties-common
+sudo add-apt-repository -y universe
+sudo mkdir -p /etc/apt/keyrings
+curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key | sudo tee /etc/apt/keyrings/ros-archive-keyring.asc >/dev/null
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/ros-archive-keyring.asc] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/ros2.list >/dev/null
 apt_update
 sudo apt-get upgrade -y
 sudo apt-get install -y --no-install-recommends \
@@ -21,16 +26,7 @@ sudo apt-get install -y --no-install-recommends \
   gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
   gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly \
   libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
-  libgpiod-dev libopencv-dev
-
-# ROS 2 Humble
-sudo mkdir -p /etc/apt/keyrings
-curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key | sudo tee /etc/apt/keyrings/ros-archive-keyring.asc >/dev/null
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/ros-archive-keyring.asc] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/ros2.list >/dev/null
-
-# Install ROS 2 desktop
-apt_update
-sudo apt-get install -y --no-install-recommends \
+  libgpiod-dev libopencv-dev \
   ros-${ROS_DISTRO}-desktop \
   ros-${ROS_DISTRO}-vision-opencv \
   ros-${ROS_DISTRO}-gscam
