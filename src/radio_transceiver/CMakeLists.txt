@@ -48,6 +48,11 @@ install(DIRECTORY include/
   DESTINATION include/
 )
 
+install(
+  DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}
+)
+
 target_link_libraries(radio_transceiver_node
   sx126x_driver
   ${GPIOD_LIBRARIES}

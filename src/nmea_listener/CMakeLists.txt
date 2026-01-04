@@ -41,6 +41,11 @@ install(DIRECTORY include/
   DESTINATION include/
 )
 
+install(
+  DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}
+)
+
 target_link_libraries(nmea_listener_node
   nmea
 )
