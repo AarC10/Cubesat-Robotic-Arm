@@ -201,26 +201,23 @@ void NmeaListenerNode::handleRawNmeaLine(const std::string &line) {
   
   if (sentence.type() == "GGA") {
     nmea::gga gga(sentence);
-    if (gga.latitude.exists() && gga.longitude.exists() && gga.fix.exists() && gga.satellite_count.exists() && gga.utc.exists()) {
-      std::lock_guard<std::mutex> lock(currentStateMutex);
-      currentState.latitude = gga.latitude.get();
-      currentState.longitude = gga.longitude.get();
-      currentState.fix_type = static_cast<uint8_t>(gga.fix.get());
-      currentState.satellites_visible = gga.satellite_count.get();
-      currentState.timestamp = static_cast<uint32_t>(gga.utc.get());
-      RCLCPP_INFO(this->get_logger(), "GGA parsed: lat=%f, lon=%f, fix=%d, sats=%d, time=%u",
-                   currentState.latitude,
-                   currentState.longitude,
-                   currentState.fix_type,
-                   currentState.satellites_visible,
-                   currentState.timestamp);
-    } else if (std::find(std::begin(ignored_sentences), std::end(ignored_sentences), sentence.type()) == std::end(ignored_sentences)) {
-      return;
-    }    
-    else {
-      RCLCPP_WARN(this->get_logger(), "Incomplete GGA sentence received.");
-      return;
-    }
+    std::lock_guard<std::mutex> lock(currentStateMutex);
+    currentState.latitude = gga.latitude.get();
+    currentState.longitude = gga.longitude.get();
+    currentState.fix_type = static_cast<uint8_t>(gga.fix.get());
+    currentState.satellites_visible = gga.satellite_count.get();
+    currentState.timestamp = static_cast<uint32_t>(gga.utc.get());
+    RCLCPP_INFO(this->get_logger(), "GGA parsed: lat=%f, lon=%f, fix=%d, sats=%d, time=%u",
+                  currentState.latitude,
+                  currentState.longitude,
+                  currentState.fix_type,
+                  currentState.satellites_visible,
+                  currentState.timestamp);
+  } else if (std::find(ignored_sentences.begin(), ignored_sentences.end(), sentence.type()) != ignored_sentences.end()) {
+    RCLCPP_INFO(this->get_logger(), "Ignoring NMEA sentence type: %s", sentence.type().c_str());
+    return;
+  } else {
+    RCLCPP_WARN(this->get_logger(), "Unhandled NMEA sentence type: %s", sentence.type().c_str());
   }
 
   // TODO: Should we do RMC?
