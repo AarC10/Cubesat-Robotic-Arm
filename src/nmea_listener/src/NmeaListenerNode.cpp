@@ -195,7 +195,7 @@ void NmeaListenerNode::handleRawNmeaLine(const std::string &line) {
   nmea::sentence sentence(line);
   RCLCPP_DEBUG(this->get_logger(), "Received NMEA sentence: %s", line.c_str());
 
-  static constexpr std::string ignored_sentences[] = {
+  static constexpr std::array<std::string_view, 5> ignored_sentences = {
       "GSA", "GSV", "GLL", "RMC", "VTG"
   };
   
@@ -215,7 +215,7 @@ void NmeaListenerNode::handleRawNmeaLine(const std::string &line) {
                    currentState.satellites_visible,
                    currentState.timestamp);
     } else if (std::find(std::begin(ignored_sentences), std::end(ignored_sentences), sentence.type()) == std::end(ignored_sentences)) {
-      continue;
+      return;
     }    
     else {
       RCLCPP_WARN(this->get_logger(), "Incomplete GGA sentence received.");
