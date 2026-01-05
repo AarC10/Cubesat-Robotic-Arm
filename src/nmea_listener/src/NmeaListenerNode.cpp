@@ -207,14 +207,14 @@ void NmeaListenerNode::handleRawNmeaLine(const std::string &line) {
     currentState.fix_type = static_cast<uint8_t>(gga.fix.get());
     currentState.satellites_visible = gga.satellite_count.get();
     currentState.timestamp = static_cast<uint32_t>(gga.utc.get());
-    RCLCPP_INFO(this->get_logger(), "GGA parsed: lat=%f, lon=%f, fix=%d, sats=%d, time=%u",
+    RCLCPP_DEBUG(this->get_logger(), "GGA parsed: lat=%f, lon=%f, fix=%d, sats=%d, time=%u",
                   currentState.latitude,
                   currentState.longitude,
                   currentState.fix_type,
                   currentState.satellites_visible,
                   currentState.timestamp);
   } else if (std::find(ignored_sentences.begin(), ignored_sentences.end(), sentence.type()) != ignored_sentences.end()) {
-    RCLCPP_INFO(this->get_logger(), "Ignoring NMEA sentence type: %s", sentence.type().c_str());
+    RCLCPP_DEBUG(this->get_logger(), "Ignoring NMEA sentence type: %s", sentence.type().c_str());
     return;
   } else {
     RCLCPP_WARN(this->get_logger(), "Unhandled NMEA sentence type: %s", sentence.type().c_str());
