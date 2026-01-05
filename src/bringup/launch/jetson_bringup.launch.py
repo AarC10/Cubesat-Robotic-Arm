@@ -46,7 +46,7 @@ def generate_launch_description() -> LaunchDescription:
             output="screen",
             parameters=[
                 {
-                    "port": "/dev/ttyS0",
+                    "port": "/dev/ttyTHS1",
                     "baud": 9600,
                     "gps_status_topic": "/gps/status",
                     "max_line_len": 512,

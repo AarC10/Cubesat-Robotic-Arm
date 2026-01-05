@@ -52,7 +52,7 @@ NmeaListenerNode::NmeaListenerNode(const rclcpp::NodeOptions &options)
       std::bind(&NmeaListenerNode::publishGpsStatusCallback, this)
   );
 
-  RCLCPP_INFO(get_logger(), "NMEA Listenrer Node started.");
+  RCLCPP_INFO(get_logger(), "NMEA Listener Node started.");
 }
 
 NmeaListenerNode::~NmeaListenerNode() {
@@ -147,6 +147,16 @@ void NmeaListenerNode::readerLoop() {
     buffer.append(readBuf.data(), static_cast<size_t>(n));
 
     while (true) {
+      size_t start = buffer.find('$');
+      if (start == std::string::npos) {
+        buffer.clear();
+        break;
+      }
+
+      if (start > 0) {
+        buffer.erase(0, start);
+      }
+
       size_t lf = buffer.find('\n');
       if (lf == std::string::npos) {
         break;
@@ -169,8 +179,6 @@ void NmeaListenerNode::readerLoop() {
         continue;
       }
 
-      if (line[0] != '$') continue; // TODO: ight need to find $ too 
-
       handleRawNmeaLine(line);
     }
 
@@ -185,6 +193,11 @@ void NmeaListenerNode::readerLoop() {
 
 void NmeaListenerNode::handleRawNmeaLine(const std::string &line) {
   nmea::sentence sentence(line);
+  RCLCPP_DEBUG(this->get_logger(), "Received NMEA sentence: %s", line.c_str());
+
+  static constexpr std::string ignored_sentences[] = {
+      "GSA", "GSV", "GLL", "RMC", "VTG"
+  };
   
   if (sentence.type() == "GGA") {
     nmea::gga gga(sentence);
@@ -195,7 +208,16 @@ void NmeaListenerNode::handleRawNmeaLine(const std::string &line) {
       currentState.fix_type = static_cast<uint8_t>(gga.fix.get());
       currentState.satellites_visible = gga.satellite_count.get();
       currentState.timestamp = static_cast<uint32_t>(gga.utc.get());
-    } else {
+      RCLCPP_INFO(this->get_logger(), "GGA parsed: lat=%f, lon=%f, fix=%d, sats=%d, time=%u",
+                   currentState.latitude,
+                   currentState.longitude,
+                   currentState.fix_type,
+                   currentState.satellites_visible,
+                   currentState.timestamp);
+    } else if (std::find(std::begin(ignored_sentences), std::end(ignored_sentences), sentence.type()) == std::end(ignored_sentences)) {
+      continue;
+    }    
+    else {
       RCLCPP_WARN(this->get_logger(), "Incomplete GGA sentence received.");
       return;
     }
