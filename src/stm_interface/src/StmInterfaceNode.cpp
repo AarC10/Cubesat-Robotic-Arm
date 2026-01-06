@@ -22,6 +22,10 @@ StmInterfaceNode::StmInterfaceNode()
     throw std::runtime_error("Failed to open SPI device");
   }
 
+  armCommandSubscription = this->create_subscription<arm_msgs::msg::ArmCommand>(
+      "arm_command", 10,
+      std::bind(&StmInterfaceNode::receiveArmCommand, this,
+                std::placeholders::_1));
   armStatusPublisher = this->create_publisher<arm_msgs::msg::ArmStatus>("arm_status", 10);
 
   ioctl(spiDevFd, SPI_IOC_WR_MODE, &mode);

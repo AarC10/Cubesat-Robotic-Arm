@@ -46,6 +46,7 @@ private:
   uint32_t speed;
   std::mutex busMutex;
 
+  rclcpp::Subscription<arm_msgs::msg::ArmCommand>::SharedPtr armCommandSubscription;
   rclcpp::Publisher<arm_msgs::msg::ArmStatus>::SharedPtr armStatusPublisher;
 
   static constexpr size_t BUFFER_SIZE = 256;
