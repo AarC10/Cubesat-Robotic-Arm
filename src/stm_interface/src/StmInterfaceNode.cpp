@@ -10,10 +10,14 @@
 
 StmInterfaceNode::StmInterfaceNode()
     : Node("stm_interface"),
-      mode(static_cast<uint8_t>(this->declare_parameter<int>("spi_mode", SPI_MODE_0))),
-      bitsPerWord(static_cast<uint8_t>(this->declare_parameter<int>("spi_bits_per_word", 8))),
-      speed(static_cast<uint32_t>(this->declare_parameter<int>("spi_speed_hz", 1000000))) {
-  const auto spiDevice = this->declare_parameter<std::string>("spi_device", "/dev/spidev0.0");
+      mode(static_cast<uint8_t>(
+          this->declare_parameter<int>("spi_mode", SPI_MODE_0))),
+      bitsPerWord(static_cast<uint8_t>(
+          this->declare_parameter<int>("spi_bits_per_word", 8))),
+      speed(static_cast<uint32_t>(
+          this->declare_parameter<int>("spi_speed_hz", 4000000))) {
+  const auto spiDevice =
+      this->declare_parameter<std::string>("spi_device", "/dev/spidev0.0");
 
   spiDevFd = open(spiDevice.c_str(), O_RDWR);
   if (spiDevFd < 0) {
@@ -26,7 +30,8 @@ StmInterfaceNode::StmInterfaceNode()
       "arm_command", 10,
       std::bind(&StmInterfaceNode::receiveArmCommand, this,
                 std::placeholders::_1));
-  armStatusPublisher = this->create_publisher<arm_msgs::msg::ArmStatus>("arm_status", 10);
+  armStatusPublisher =
+      this->create_publisher<arm_msgs::msg::ArmStatus>("arm_status", 10);
 
   ioctl(spiDevFd, SPI_IOC_WR_MODE, &mode);
   ioctl(spiDevFd, SPI_IOC_WR_BITS_PER_WORD, &bitsPerWord);
@@ -57,16 +62,18 @@ void StmInterfaceNode::receiveArmCommand(
   packet.wrist_angle = msg->wrist_angle;
   packet.take_picture = msg->take_picture;
 
-  uint8_t txBuffer[sizeof(SpiArmCommandPacket)];
-  uint8_t rxBuffer[sizeof(SpiArmCommandPacket)] = {0};
+  constexpr size_t TX_LEN = sizeof(SpiArmCommandPacket);
+  constexpr size_t RX_LEN = sizeof(SpiStatusPacket);
+  constexpr size_t XFER_LEN = std::max(TX_LEN, RX_LEN);
 
-  // SPI Transfer
-  memcpy(txBuffer, &packet, sizeof(SpiArmCommandPacket));
-  performSpiTransfer(txBuffer, rxBuffer, sizeof(SpiArmCommandPacket));
+  std::array<uint8_t, XFER_LEN> tx{};
+  std::array<uint8_t, XFER_LEN> rx{};
+  memcpy(tx.data(), &packet, TX_LEN);
 
-  // Parse and report status to topic
-  SpiStatusPacket status;
-  memcpy(&status, rxBuffer, sizeof(SpiStatusPacket));
+  performSpiTransfer(tx.data(), rx.data(), XFER_LEN);
+
+  SpiStatusPacket status{};
+  memcpy(&status, rx.data(), sizeof(SpiStatusPacket));
   reportArmStatus(status);
 }
 
@@ -82,6 +89,9 @@ void StmInterfaceNode::performSpiTransfer(const uint8_t *txData,
   tr.rx_buf = reinterpret_cast<unsigned long>(rxData);
   tr.len = static_cast<uint32_t>(length);
   tr.speed_hz = speed;
+  tr.bits_per_word = bitsPerWord;
+  tr.delay_usecs = 0;
+  tr.cs_change = 0;
 
   // spidev is not thread-safe so use a mutex
   std::lock_guard<std::mutex> lock(busMutex);

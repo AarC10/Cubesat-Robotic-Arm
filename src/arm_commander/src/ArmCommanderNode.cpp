@@ -5,7 +5,7 @@
 StatusAccumulatorNode::StatusAccumulatorNode()
     : Node("arm_commander"),
       angleIncrement(this->declare_parameter<int16_t>("angle_increment", 5)),
-      timeoutIntervalMs(this->declare_parameter<int>("timeout_interval_ms", 100)) {
+      timeoutIntervalMs(this->declare_parameter<int>("timeout_interval_ms", 200)) {
     const auto receiveTopic = this->declare_parameter<std::string>("receive_topic", "/arm_target");
     const auto publishTopic = this->declare_parameter<std::string>("publish_topic", "/arm_command");
 
