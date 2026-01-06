@@ -84,7 +84,7 @@ void StmInterfaceNode::performSpiTransfer(const uint8_t *txData,
     throw std::runtime_error("Transfer length exceeds buffer size");
   }
 
-  struct spi_ioc_transfer tr;
+  struct spi_ioc_transfer tr{};
   tr.tx_buf = reinterpret_cast<unsigned long>(txData);
   tr.rx_buf = reinterpret_cast<unsigned long>(rxData);
   tr.len = static_cast<uint32_t>(length);
