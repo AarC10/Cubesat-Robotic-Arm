@@ -7,7 +7,9 @@ services:
       - LOCAL_UID=${UID}
       - LOCAL_GID=${GID}
       - LOCAL_USER=rosdev
-
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-42}
+      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+      - ROS_LOCALHOST_ONLY=0
       # X11
       - DISPLAY=${DISPLAY}
       - QT_X11_NO_MITSHM=1
