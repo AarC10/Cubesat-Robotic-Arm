@@ -1,4 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
+cmake_policy(SET CMP0148 OLD)
+
 project(arm_msgs)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
