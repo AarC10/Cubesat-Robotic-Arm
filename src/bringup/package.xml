@@ -16,8 +16,7 @@
   <exec_depend>nmea_listener</exec_depend>
   <exec_depend>radio_transceiver</exec_depend>
   <exec_depend>image_handler</exec_depend>
-  <exec_depend>gscam2</exec_depend>
-  <exec_depend>libcamera_ros_driver</exec_depend>
+  <exec_depend>camera_ros</exec_depend>
     <export>
     <build_type>ament_cmake</build_type>
   </export>

@@ -11,17 +11,26 @@ def generate_launch_description() -> LaunchDescription:
             output="screen",
             parameters=[
                 {
-                    "gscam_config": "nvarguscamerasrc sensor-id=0 ! video/x-raw(memory:NVMM),width=1280,height=720,framerate=30/1 ! nvvidconv ! video/x-raw,format=BGR ! appsink"
+                    "gscam_config": (
+                        "nvarguscamerasrc sensor-id=0 ! "
+                        "video/x-raw(memory:NVMM),width=1280,height=720,framerate=30/1 ! "
+                        "nvvidconv ! video/x-raw,format=BGR ! appsink"
+                    )
                 }
             ],
         ),
+
         Node(
             package="image_handler",
             executable="image_handler_node",
             name="image_compressor",
             output="screen",
             parameters=[{"save_directory": "/tmp/images"}],
+            remappings=[
+                ("raw_image", "/camera/image_raw"),
+            ],
         ),
+
         Node(
             package="sensor_reader",
             executable="sensor_reader_node",
@@ -39,6 +48,7 @@ def generate_launch_description() -> LaunchDescription:
                 }
             ],
         ),
+
         Node(
             package="nmea_listener",
             executable="nmea_listener_node",
@@ -53,6 +63,7 @@ def generate_launch_description() -> LaunchDescription:
                 }
             ],
         ),
+
         Node(
             package="status_accumulator",
             executable="status_accumulator_node",
@@ -67,6 +78,7 @@ def generate_launch_description() -> LaunchDescription:
                 }
             ],
         ),
+
         Node(
             package="arm_commander",
             executable="arm_commander_node",
@@ -81,6 +93,7 @@ def generate_launch_description() -> LaunchDescription:
                 }
             ],
         ),
+
         Node(
             package="radio_transceiver",
             executable="radio_transceiver_node",

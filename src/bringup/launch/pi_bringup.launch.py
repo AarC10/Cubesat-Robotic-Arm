@@ -5,7 +5,7 @@ from launch_ros.actions import Node
 def generate_launch_description() -> LaunchDescription:
     return LaunchDescription([
         Node(
-            package="libcamera_ros_driver",
+            package="camera_ros",
             executable="camera_node",
             name="camera",
             output="screen",
@@ -18,13 +18,19 @@ def generate_launch_description() -> LaunchDescription:
                 }
             ],
         ),
+
         Node(
             package="image_handler",
             executable="image_handler_node",
             name="image_compressor",
             output="screen",
             parameters=[{"save_directory": "/tmp/images"}],
+            remappings=[
+                # image_handler subscribes to "raw_image"
+                ("raw_image", "/camera/image_raw"),
+            ],
         ),
+
         Node(
             package="sensor_reader",
             executable="sensor_reader_node",
@@ -42,6 +48,7 @@ def generate_launch_description() -> LaunchDescription:
                 }
             ],
         ),
+
         Node(
             package="nmea_listener",
             executable="nmea_listener_node",
@@ -56,6 +63,7 @@ def generate_launch_description() -> LaunchDescription:
                 }
             ],
         ),
+
         Node(
             package="status_accumulator",
             executable="status_accumulator_node",
@@ -70,6 +78,7 @@ def generate_launch_description() -> LaunchDescription:
                 }
             ],
         ),
+
         Node(
             package="arm_commander",
             executable="arm_commander_node",
@@ -84,6 +93,7 @@ def generate_launch_description() -> LaunchDescription:
                 }
             ],
         ),
+
         Node(
             package="radio_transceiver",
             executable="radio_transceiver_node",
