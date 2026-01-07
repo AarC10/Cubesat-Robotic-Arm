@@ -6,7 +6,7 @@
 #include <sstream>
 
 ImageHandlerNode::ImageHandlerNode() : Node("image_compressor") {
-  imageRequestSub = this->create_subscription<bool>(
+  imageRequestSub = this->create_subscription<std_msgs::msg::Bool>(
       "image_request", 10,
       std::bind(&ImageHandlerNode::handleImageRequest, this, std::placeholders::_1));
 
@@ -22,9 +22,9 @@ ImageHandlerNode::ImageHandlerNode() : Node("image_compressor") {
 
 ImageHandlerNode::~ImageHandlerNode() = default;
 
-void ImageHandlerNode::handleImageRequest(const bool sendCompressed) {
+void ImageHandlerNode::handleImageRequest(const std_msgs::msg::Bool::SharedPtr msg) {
   std::lock_guard<std::mutex> lock(imageMutex);
-  if (sendCompressed) {
+  if (msg->data) {
     if (lastRawImage) {
       compress();
     } else {

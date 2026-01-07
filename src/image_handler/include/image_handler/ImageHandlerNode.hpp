@@ -1,9 +1,10 @@
 #pragma once
 
-#include <rclcpp/rclcpp.hpp>
-#include <std_msgs/msg/string.hpp>
-#include <sensor_msgs/msg/image.hpp>
 #include <mutex>
+#include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/image.hpp>
+#include <std_msgs/msg/bool.hpp>
+#include <std_msgs/msg/string.hpp>
 
 class ImageHandlerNode final : public rclcpp::Node {
 public:
@@ -12,7 +13,7 @@ public:
 
 private:
   // Pub Subs
-  rclcpp::Subscription<bool>::SharedPtr imageRequestSub;
+  rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr imageRequestSub;
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr rawImageSub;
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr compressedImagePub;
 
@@ -20,7 +21,7 @@ private:
   sensor_msgs::msg::Image::SharedPtr lastRawImage;
 
   // Callbacks
-  void handleImageRequest(const bool sendCompressed);
+  void handleImageRequest(const std_msgs::msg::Bool::SharedPtr msg);
   void handleRawImage(const sensor_msgs::msg::Image::SharedPtr msg);
   
 
