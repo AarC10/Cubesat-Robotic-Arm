@@ -95,6 +95,18 @@ def generate_launch_description() -> LaunchDescription:
         ),
 
         Node(
+            package="stm_interface",
+            executable="stm_interface_node",
+            name="stm_interface",
+            output="screen",
+            parameters=[
+                {
+                    "spi_device": "/dev/spidev0.1",
+                }
+            ],
+        ),
+
+        Node(
             package="radio_transceiver",
             executable="radio_transceiver_node",
             name="radio_transceiver",

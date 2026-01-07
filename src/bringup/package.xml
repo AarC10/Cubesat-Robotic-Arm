@@ -17,6 +17,7 @@
   <exec_depend>radio_transceiver</exec_depend>
   <exec_depend>image_handler</exec_depend>
   <exec_depend>camera_ros</exec_depend>
+  <exec_depend>stm_interface</exec_depend>
     <export>
     <build_type>ament_cmake</build_type>
   </export>
