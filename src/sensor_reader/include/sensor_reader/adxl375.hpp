@@ -19,7 +19,7 @@ public:
   };
 
   // Either 0x53 or 0x1D
-  explicit Adxl375(std::string i2cDevPath, uint8_t addr = 0x53);
+  explicit Adxl375(std::string i2cDevPath, uint8_t addr = 0x1D);
   ~Adxl375();
 
   Adxl375(const Adxl375 &) = delete;

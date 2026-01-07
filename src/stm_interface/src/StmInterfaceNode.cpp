@@ -15,7 +15,7 @@ StmInterfaceNode::StmInterfaceNode()
       bitsPerWord(static_cast<uint8_t>(
           this->declare_parameter<int>("spi_bits_per_word", 8))),
       speed(static_cast<uint32_t>(
-          this->declare_parameter<int>("spi_speed_hz", 4000000))) {
+          this->declare_parameter<int>("spi_speed_hz", 1000000))) {
   const auto spiDevice =
       this->declare_parameter<std::string>("spi_device", "/dev/spidev0.0");
 

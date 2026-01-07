@@ -23,12 +23,16 @@ def generate_launch_description() -> LaunchDescription:
             output="screen",
             parameters=[{
                 "gscam_config": (
-                    "nvarguscamerasrc sensor-id=0 ! "
-                    "video/x-raw(memory:NVMM),width=1280,height=720,framerate=30/1 ! "
-                    "nvvidconv ! video/x-raw,format=BGR ! appsink"
+                "nvarguscamerasrc sensor-id=0 ! "
+                "video/x-raw(memory:NVMM),width=1280,height=720,framerate=30/1 ! "
+                "nvvidconv ! "
+                "video/x-raw,format=BGRx ! "
+                "videoconvert ! "
+                "video/x-raw,format=BGR ! "
+                "appsink"
                 )
             }],
-            remappings=[
+           remappings=[
                 ("image", "image_raw"),
             ],
         ),

@@ -48,24 +48,29 @@ bool Adxl375::init() {
     return false;
 
   if (ioctl(fd, I2C_SLAVE, addr) < 0) {
+    printf("I2C_SLAVE ioctl failed: %s\n", std::strerror(errno));
     close();
     return false;
   }
 
   auto devid = readDeviceId();
   if (!devid.has_value() || devid.value() != DEVID_VAL) {
+    printf("ADXL375 device ID read failed or incorrect. Read: 0x%02X\n",
+           devid.has_value() ? devid.value() : 0xFF);
     close();
     return false;
   }
 
   // Force bits 3, 1, and 0 in data format to set since reg default is 0
   if (!setDataFormat(0b00001011)) {
+    printf("Failed to set data format register.\n");
     close();
     return false;
   }
 
   // Put into measurement mode
   if (!setMeasurementMode(true)) {
+    printf("Failed to set measurement mode.\n");
     close();
     return false;
   }
