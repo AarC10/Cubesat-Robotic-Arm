@@ -23,6 +23,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/GpsStatus.msg"
   "msg/HeartbeatStatus.msg"
   "msg/RadioParametersCommand.msg"
+  "msg/ImageRequest.msg"
+  "msg/ImageData.msg"
   DEPENDENCIES builtin_interfaces
 )
 

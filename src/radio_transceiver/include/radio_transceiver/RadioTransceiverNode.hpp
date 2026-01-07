@@ -9,6 +9,7 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include <map>
 
 #include <gpiod.h>
 #include <rclcpp/rclcpp.hpp>
@@ -17,6 +18,8 @@
 #include "arm_msgs/msg/arm_status.hpp"
 #include "arm_msgs/msg/heartbeat_status.hpp"
 #include "arm_msgs/msg/radio_parameters_command.hpp"
+#include "arm_msgs/msg/image_request.hpp"
+#include "arm_msgs/msg/image_data.hpp"
 
 extern "C" {
 #include "sx126x.h"
@@ -48,14 +51,19 @@ private:
 	uint16_t txPort{9000};
 	uint16_t rxMoveArmPort{9100};
 	uint16_t rxSetRadioParamsPort{9101};
+	uint16_t rxRequestImagePort{9102};
+	uint16_t txImageDataPort{9200};
 	static constexpr uint8_t kMsgHeartbeat = 0x01;
 	static constexpr uint8_t kMsgArmTelemetry = 0x02;
+	static constexpr uint8_t kMsgImageData = 0x03;
 	static constexpr uint8_t kMsgMoveArm = 0x10;
 	static constexpr uint8_t kMsgSetRadioParams = 0x11;
+	static constexpr uint8_t kMsgRequestImage = 0x12;
 
 	void heartbeatCallback(const arm_msgs::msg::HeartbeatStatus::SharedPtr msg);
 	void armStatusCallback(const arm_msgs::msg::ArmStatus::SharedPtr msg);
 	void armCommandCallback(const arm_msgs::msg::ArmCommand::SharedPtr msg);
+	void imageDataCallback(const arm_msgs::msg::ImageData::SharedPtr msg);
 	void txTimerCallback();
 	void rxPollCallback();
 
@@ -72,8 +80,10 @@ private:
 
 	void handleMoveArmCommand(const std::vector<uint8_t> &payload);
 	void handleSetRadioParams(const std::vector<uint8_t> &payload);
+	void handleRequestImage(const std::vector<uint8_t> &payload);
 	std::vector<uint8_t> serializeHeartbeat() const;
 	std::vector<uint8_t> serializeArmTelemetry() const;
+	std::vector<uint8_t> serializeImageData(const arm_msgs::msg::ImageData &imageData) const;
 
 	sx126x_lora_bw_t toLoraBandwidth(uint32_t bandwidth) const;
 	sx126x_lora_cr_t toLoraCodingRate(uint32_t codingRate) const;
@@ -118,11 +128,17 @@ private:
 	bool haveHeartbeat{false};
 	bool haveArmStatus{false};
 
+	// Image transmission state
+	std::map<uint8_t, std::vector<arm_msgs::msg::ImageData>> pendingImageChunks;
+	std::mutex imageDataMutex;
+
     // Pub Subs
 	rclcpp::Subscription<arm_msgs::msg::HeartbeatStatus>::SharedPtr heartbeatSub;
 	rclcpp::Subscription<arm_msgs::msg::ArmStatus>::SharedPtr armStatusSub;
 	rclcpp::Subscription<arm_msgs::msg::ArmCommand>::SharedPtr armCommandSub;
+	rclcpp::Subscription<arm_msgs::msg::ImageData>::SharedPtr imageDataSub;
 	rclcpp::Publisher<arm_msgs::msg::ArmCommand>::SharedPtr armCommandPub;
+	rclcpp::Publisher<arm_msgs::msg::ImageRequest>::SharedPtr imageRequestPub;
 	rclcpp::TimerBase::SharedPtr txTimer;
 	rclcpp::TimerBase::SharedPtr rxPollTimer;
 };

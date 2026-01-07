@@ -30,6 +30,8 @@ RadioTransceiverNode::RadioTransceiverNode() : Node("radio_transceiver") {
 	txPort = static_cast<uint16_t>(this->declare_parameter<int>("tx_port", 9000));
 	rxMoveArmPort = static_cast<uint16_t>(this->declare_parameter<int>("rx_move_arm_port", 9100));
 	rxSetRadioParamsPort = static_cast<uint16_t>(this->declare_parameter<int>("rx_set_radio_params_port", 9101));
+	rxRequestImagePort = static_cast<uint16_t>(this->declare_parameter<int>("rx_request_image_port", 9102));
+	txImageDataPort = static_cast<uint16_t>(this->declare_parameter<int>("tx_image_data_port", 9200));
 
 	defaultConfig.frequencyHz = static_cast<uint32_t>(this->declare_parameter<int>("frequency_hz", 915000000));
 	defaultConfig.txPowerDbm = static_cast<int8_t>(this->declare_parameter<int>("tx_power_dbm", 22));
@@ -43,6 +45,8 @@ RadioTransceiverNode::RadioTransceiverNode() : Node("radio_transceiver") {
 	const auto armStatusTopic = this->declare_parameter<std::string>("arm_status_topic", "arm_status");
 	const auto armCommandTopic = this->declare_parameter<std::string>("arm_command_topic", "arm_command");
 	const auto armTargetTopic = this->declare_parameter<std::string>("arm_target_topic", "/arm_target");
+	const auto imageDataTopic = this->declare_parameter<std::string>("image_data_topic", "image_data");
+	const auto imageRequestTopic = this->declare_parameter<std::string>("image_request_topic", "image_request");
 
 	heartbeatSub = this->create_subscription<arm_msgs::msg::HeartbeatStatus>(
 			heartbeatTopic, 10,
@@ -56,7 +60,12 @@ RadioTransceiverNode::RadioTransceiverNode() : Node("radio_transceiver") {
 			armCommandTopic, 10,
 			std::bind(&RadioTransceiverNode::armCommandCallback, this, std::placeholders::_1));
 
+	imageDataSub = this->create_subscription<arm_msgs::msg::ImageData>(
+			imageDataTopic, 10,
+			std::bind(&RadioTransceiverNode::imageDataCallback, this, std::placeholders::_1));
+
 	armCommandPub = this->create_publisher<arm_msgs::msg::ArmCommand>(armTargetTopic, 10);
+	imageRequestPub = this->create_publisher<arm_msgs::msg::ImageRequest>(imageRequestTopic, 10);
 
 	radioReady = initHardware();
 	if (!radioReady) {
@@ -103,6 +112,24 @@ void RadioTransceiverNode::armStatusCallback(
 void RadioTransceiverNode::armCommandCallback(
 		const arm_msgs::msg::ArmCommand::SharedPtr msg) {
 	lastArmCommand = *msg;
+}
+
+void RadioTransceiverNode::imageDataCallback(
+		const arm_msgs::msg::ImageData::SharedPtr msg) {
+	std::lock_guard<std::mutex> lock(imageDataMutex);
+	
+	// Store the chunk
+	pendingImageChunks[msg->image_id].push_back(*msg);
+	
+	RCLCPP_DEBUG(this->get_logger(), "Received image chunk %u/%u for image ID %u",
+	             msg->chunk_index + 1, msg->total_chunks, msg->image_id);
+	
+	// Check if we have all chunks for this image
+	auto &chunks = pendingImageChunks[msg->image_id];
+	if (chunks.size() == msg->total_chunks) {
+		RCLCPP_INFO(this->get_logger(), "All chunks received for image ID %u, ready for transmission",
+		            msg->image_id);
+	}
 }
 
 bool RadioTransceiverNode::initHardware() {
@@ -241,6 +268,40 @@ void RadioTransceiverNode::txTimerCallback() {
 		transmitFrame(serializeArmTelemetry());
 	}
 
+	// Transmit pending image chunks
+	{
+		std::lock_guard<std::mutex> lock(imageDataMutex);
+		for (auto &[imageId, chunks] : pendingImageChunks) {
+			// Sort chunks by index
+			std::sort(chunks.begin(), chunks.end(), 
+			         [](const auto &a, const auto &b) { return a.chunk_index < b.chunk_index; });
+			
+			// Transmit each chunk
+			for (const auto &chunk : chunks) {
+				auto payload = serializeImageData(chunk);
+				
+				// Build frame with image data port
+				std::vector<uint8_t> frame;
+				frame.reserve(payload.size() + 2);
+				frame.push_back(static_cast<uint8_t>(txImageDataPort & 0xFF));
+				frame.push_back(static_cast<uint8_t>((txImageDataPort >> 8) & 0xFF));
+				frame.insert(frame.end(), payload.begin(), payload.end());
+				
+				if (frame.size() <= 255) {
+					transmitFrame(payload);
+					RCLCPP_DEBUG(this->get_logger(), "Transmitted image chunk %u/%u for ID %u",
+					            chunk.chunk_index + 1, chunk.total_chunks, imageId);
+				} else {
+					RCLCPP_WARN(this->get_logger(), "Image chunk too large: %zu bytes", frame.size());
+				}
+				
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			}
+		}
+		// Clear transmitted chunks
+		pendingImageChunks.clear();
+	}
+
 	maybeRevertRadioConfig();
 }
 
@@ -337,6 +398,8 @@ void RadioTransceiverNode::handleInboundFrame(const std::vector<uint8_t> &frame)
 		handleMoveArmCommand(payload);
 	} else if (port == rxSetRadioParamsPort) {
 		handleSetRadioParams(payload);
+	} else if (port == rxRequestImagePort) {
+		handleRequestImage(payload);
 	} else {
 		RCLCPP_DEBUG(this->get_logger(), "Unhandled inbound port %u", port);
 	}
@@ -451,6 +514,37 @@ void RadioTransceiverNode::handleSetRadioParams(const std::vector<uint8_t> &payl
 							"Applied GS radio params: sf=%u bw=%u cr=%u; arm orient yaw=%d pitch=%d elbow=%d wrist=%d",
 							newConfig.spreadingFactor, newConfig.bandwidthHz, newConfig.codingRate, orient.shoulder_yaw,
 							orient.shoulder_pitch, orient.elbow_angle, orient.wrist_angle);
+}
+
+void RadioTransceiverNode::handleRequestImage(const std::vector<uint8_t> &payload) {
+	if (payload.size() < 3) {
+		RCLCPP_WARN(this->get_logger(), "RequestImage payload too short (%zu)", payload.size());
+		return;
+	}
+
+	arm_msgs::msg::ImageRequest request;
+	request.image_id = payload[0];
+	request.compress = payload[1] != 0;
+	request.quality = payload[2];
+
+	RCLCPP_INFO(this->get_logger(), "Received image request from GS: ID=%u compress=%d quality=%u",
+	            request.image_id, request.compress, request.quality);
+
+	imageRequestPub->publish(request);
+}
+
+std::vector<uint8_t> RadioTransceiverNode::serializeImageData(
+		const arm_msgs::msg::ImageData &imageData) const {
+	std::vector<uint8_t> out;
+	out.reserve(13 + imageData.data.size());
+	
+	out.push_back(imageData.image_id);
+	writeUint32(out, imageData.total_chunks);
+	writeUint32(out, imageData.chunk_index);
+	writeUint32(out, imageData.total_size);
+	out.insert(out.end(), imageData.data.begin(), imageData.data.end());
+	
+	return out;
 }
 
 sx126x_lora_bw_t RadioTransceiverNode::toLoraBandwidth(uint32_t bandwidth) const {
