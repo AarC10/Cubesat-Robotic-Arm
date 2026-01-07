@@ -2,7 +2,7 @@
 
 SensorReaderNode::SensorReaderNode()
     : Node("sensor_reader_node"),
-      readIntervalMs(this->declare_parameter<int>("read_interval_ms", 1000)),
+      readIntervalMs(this->declare_parameter<int>("read_interval_ms", 100)),
       adxl375Topic(this->declare_parameter<std::string>(
           "adxl375_topic", "/sensor_msgs/msg/Imu")),
       adxl375I2cDev(this->declare_parameter<std::string>("adxl375_i2c_dev",
@@ -46,11 +46,13 @@ SensorReaderNode::~SensorReaderNode() = default;
 
 void SensorReaderNode::timeoutCallback() {
   auto imuMsg = sensor_msgs::msg::Imu();
+  imuMsg.header.stamp = this->now();
+
   auto batteryMsg = sensor_msgs::msg::BatteryState();
+  batteryMsg.header.stamp = this->now();
 
   if (adxl375Initialized) {
     auto accelMS2 = adxl375.readMS2();
-    imuMsg.header.stamp = this->now();
     imuMsg.header.frame_id = "adxl375";
 
     if (accelMS2.has_value()) {
@@ -64,6 +66,10 @@ void SensorReaderNode::timeoutCallback() {
       imuMsg.linear_acceleration.y = NAN;
       imuMsg.linear_acceleration.z = NAN;
     }
+  } else {
+    imuMsg.linear_acceleration.x = NAN;
+    imuMsg.linear_acceleration.y = NAN;
+    imuMsg.linear_acceleration.z = NAN;
   }
 
   adxl375Publisher->publish(imuMsg);
@@ -72,11 +78,9 @@ void SensorReaderNode::timeoutCallback() {
     auto voltageOpt = ina260.readBusVoltage_V();
     auto currentOpt = ina260.readCurrent_A();
 
-    batteryMsg.header.stamp = this->now();
     batteryMsg.header.frame_id = "ina260";
 
     if (voltageOpt.has_value() && currentOpt.has_value()) {
-      batteryMsg.header.stamp = this->now();
       batteryMsg.voltage = static_cast<float>(voltageOpt.value());
       batteryMsg.current = static_cast<float>(currentOpt.value());
       ina260Publisher->publish(batteryMsg);

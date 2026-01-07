@@ -39,7 +39,7 @@ def generate_launch_description() -> LaunchDescription:
             output="screen",
             parameters=[
                 {
-                    "read_interval_ms": 1000,
+                    "read_interval_ms": 100,
                     "adxl375_topic": "/sensor_msgs/msg/Imu",
                     "adxl375_i2c_dev": "/dev/i2c-1",
                     "adxl375_addr": 83,
