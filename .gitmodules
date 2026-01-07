@@ -4,3 +4,6 @@
 [submodule "src/radio_transceiver/sx126x_driver"]
 	path = src/radio_transceiver/sx126x_driver
 	url = https://github.com/Lora-net/sx126x_driver
+[submodule "src/libcamera_ros_driver"]
+	path = src/libcamera_ros_driver
+	url = https://github.com/ctu-mrs/libcamera_ros_driver
