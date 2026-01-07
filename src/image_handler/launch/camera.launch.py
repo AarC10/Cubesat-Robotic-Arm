@@ -17,8 +17,8 @@ def generate_launch_description() -> LaunchDescription:
         ),
         Node(
             condition=IfCondition(PythonExpression(["'", platform, "' == 'jetson'"])),
-            package="gscam2",
-            executable="gscam_main",
+            package="gscam",
+            executable="gscam_node",
             name="camera",
             output="screen",
             parameters=[{
