@@ -14,7 +14,21 @@ find_package(arm_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(OpenCV REQUIRED)
 
-add_executable(image_handler_node 
+# SSDV library (C sources)
+add_library(ssdv STATIC
+  third_party/ssdv/ssdv.c
+  third_party/ssdv/rs8.c
+)
+target_include_directories(ssdv PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/third_party
+)
+# Suppress pedantic warnings for third-party C code
+set_target_properties(ssdv PROPERTIES
+  C_STANDARD 99
+  COMPILE_OPTIONS "-w"
+)
+
+add_executable(image_handler_node
   src/main.cpp
   src/ImageHandlerNode.cpp
 )
@@ -30,12 +44,14 @@ ament_target_dependencies(image_handler_node
 
 target_link_libraries(image_handler_node
   ${OpenCV_LIBRARIES}
+  ssdv
 )
 
 target_include_directories(image_handler_node PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
   ${OpenCV_INCLUDE_DIRS}
+  ${CMAKE_CURRENT_SOURCE_DIR}/third_party
 )
 
 install(TARGETS image_handler_node

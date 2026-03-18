@@ -1,6 +1,7 @@
 #pragma once
 
 #include <mutex>
+#include <vector>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <std_msgs/msg/bool.hpp>
@@ -26,17 +27,14 @@ private:
   // Callbacks
   void handleImageRequest(const arm_msgs::msg::ImageRequest::SharedPtr msg);
   void handleRawImage(const sensor_msgs::msg::Image::SharedPtr msg);
-  
 
   // File saving
   std::string saveDirectory;
 
-  // Image transmission
-  static constexpr size_t MAX_CHUNK_SIZE = 200; // Max bytes per chunk for radio transmission
+  // SSDV parameters
+  std::string callsign;
 
   // Helpers
-  void compress();
-  void compressAndTransmit(uint8_t imageId, bool compress, uint8_t quality);
+  void compressAndTransmit(uint8_t imageId, uint8_t quality, bool fec, uint16_t maxPacketSize);
   void saveRawImageToDisk();
-  
 };
